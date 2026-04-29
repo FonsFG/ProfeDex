@@ -14,9 +14,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
 import com.example.profedex.ui.screens.InicioScreen
+import com.example.profedex.ui.screens.BuscarProfesoresScreen
 
 object Rutas {
     const val INICIO = "inicio"
+    const val BUSCADOR = "buscador"
     const val PERFIL = "perfil"
     const val EVALUAR = "evaluar"
     const val FACULTAD = "facultad" //CAMBIAR O QUITAR
@@ -94,7 +96,14 @@ fun InicioApp() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Rutas.INICIO) {
-                InicioScreen()
+                InicioScreen(
+                    onBuscarClick = { navController.navigate(Rutas.BUSCADOR) }
+                )
+            }
+            composable(Rutas.BUSCADOR) {
+                BuscarProfesoresScreen(
+                    onVolverClick = { navController.popBackStack() }
+                )
             }
             composable(Rutas.PERFIL)    { PlaceholderScreen("Perfil") }
             composable(Rutas.EVALUAR)  { PlaceholderScreen("Evaluar") }

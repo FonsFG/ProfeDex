@@ -105,7 +105,8 @@ fun InicioScreen(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            onClick = onBuscarClick
         ) {
             Row(
                 modifier = Modifier
@@ -142,7 +143,7 @@ fun InicioScreen(
             TarjetaCategoria(
                 modifier = Modifier.weight(1f),
                 icono = R.drawable.estrella_recomendado,
-                fotoProfesor = R.drawable.profesor_recomendado,
+                fotoProfesor = R.drawable.profe_recomendado,
                 titulo = "PROFES MÁS RECOMENDADOS",
                 descripcion = "Los mejores evaluados por la comunidad.",
                 valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
