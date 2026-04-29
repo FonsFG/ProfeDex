@@ -19,7 +19,7 @@ object Rutas {
     const val INICIO = "inicio"
     const val PERFIL = "perfil"
     const val EVALUAR = "evaluar"
-    const val FACULTAD = "facultad" //CAMBIAR O QUITAR
+    //const val FACULTAD = "facultad" //aqui pueden poner otra pestaña
     const val AJUSTES = "ajustes" //O PONER MENU
 }
 
@@ -39,7 +39,7 @@ fun InicioApp() {
         ItemNavBar(Rutas.INICIO,    R.drawable.inicio, "Inicio"),
         ItemNavBar(Rutas.PERFIL,    R.drawable.perfil,   "Perfil"),
         ItemNavBar(Rutas.EVALUAR,  R.drawable.registro, "Evaluar"),
-        ItemNavBar(Rutas.FACULTAD,  R.drawable.facultad, "Facultad"),
+        //ItemNavBar(Rutas.FACULTAD,  R.drawable.facultad, "Facultad"),
         ItemNavBar(Rutas.AJUSTES,   R.drawable.ajustes,  "Ajustes")
     )
 
@@ -98,7 +98,7 @@ fun InicioApp() {
             }
             composable(Rutas.PERFIL)    { PlaceholderScreen("Perfil") }
             composable(Rutas.EVALUAR)  { PlaceholderScreen("Evaluar") }
-            composable(Rutas.FACULTAD)  { PlaceholderScreen("Facultad") }
+            //composable(Rutas.FACULTAD)  { PlaceholderScreen("Facultad") }
             composable(Rutas.AJUSTES)   { PlaceholderScreen("Ajustes") }
         }
     }
