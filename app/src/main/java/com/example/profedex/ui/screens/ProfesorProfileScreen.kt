@@ -48,8 +48,7 @@ fun ProfesorProfileScreen(
             Surface(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding(),
+                    .fillMaxWidth(),
                 shadowElevation = 4.dp
             ) {
                 Row(
