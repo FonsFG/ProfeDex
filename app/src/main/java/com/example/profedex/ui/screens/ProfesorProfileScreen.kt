@@ -1,8 +1,10 @@
 package com.example.profedex.ui.screens
 
+import android.widget.ImageButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,7 +36,12 @@ import com.example.profedex.ui.components.ReviewCard
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick: () -> Unit) {
+fun ProfesorProfileScreen(
+    professor: Profesor,
+    reviews: List<Review>,
+    onBackClick: () -> Unit
+) {
+
     // 1. Scaffold
     Scaffold(
         topBar = {
@@ -54,7 +61,7 @@ fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick
                     Image(
                         painter = painterResource(id = R.drawable.logo_profedex),
                         contentDescription = "Logo ProfeDex",
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp).clickable(onClick = onBackClick),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {

@@ -30,6 +30,7 @@ import com.example.profedex.viewmodel.InicioViewModel
 @Composable
 fun InicioScreen(
     onBuscarClick: () -> Unit = {},
+    onProfesorClick: (String) -> Unit,
     viewModel: InicioViewModel = viewModel()
 ) {
     val profesoresRecomendados by viewModel.profesoresRecomendados.collectAsStateWithLifecycle()
@@ -148,7 +149,7 @@ fun InicioScreen(
                 valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
                 etiqueta = "Promedio",
                 colorEtiqueta = colorScheme.tertiary,
-                onClick = onBuscarClick
+                onClick = { onProfesorClick("1") }
             )
 
             TarjetaCategoria(

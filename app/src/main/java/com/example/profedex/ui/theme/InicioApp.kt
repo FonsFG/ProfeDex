@@ -8,12 +8,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
 import com.example.profedex.ui.screens.InicioScreen
+import com.example.profedex.ui.screens.ProfesorProfileScreen
+import com.example.profedex.viewmodel.ProfesorViewModel
+import androidx.navigation.NavGraphBuilder
 
 object Rutas {
     const val INICIO = "inicio"
@@ -94,12 +98,41 @@ fun InicioApp() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Rutas.INICIO) {
-                InicioScreen()
+                InicioScreen(
+                    onBuscarClick = { /* ... */ },
+                    onProfesorClick = { id ->
+                        navController.navigate(Rutas.PERFIL)
+                    }
+                )
             }
-            composable(Rutas.PERFIL)    { PlaceholderScreen("Perfil") }
-            composable(Rutas.EVALUAR)  { PlaceholderScreen("Evaluar") }
-            //composable(Rutas.FACULTAD)  { PlaceholderScreen("Facultad") }
-            composable(Rutas.AJUSTES)   { PlaceholderScreen("Ajustes") }
+
+            // Usamos una función de extensión para "encapsular" el perfil
+            perfilGraph(
+                onBackClick = { navController.popBackStack() }
+            )
+
+            composable(Rutas.EVALUAR) { PlaceholderScreen("Evaluar") }
+            composable(Rutas.AJUSTES)  { PlaceholderScreen("Ajustes") }
+        }
+    }
+}
+
+
+// Esta función extiende el NavGraphBuilder para manejar la ruta del perfil
+fun NavGraphBuilder.perfilGraph(
+    onBackClick: () -> Unit
+) {
+    composable(Rutas.PERFIL) {
+        // El ViewModel se obtiene aquí, manteniendo el NavHost principal despejado
+        val profeViewModel: ProfesorViewModel = viewModel()
+        val profesor by profeViewModel.profesorState.collectAsState()
+
+        profesor?.let { profe ->
+            ProfesorProfileScreen(
+                professor = profe,
+                reviews = profeViewModel.getReviewsDePrueba(),
+                onBackClick = onBackClick
+            )
         }
     }
 }
