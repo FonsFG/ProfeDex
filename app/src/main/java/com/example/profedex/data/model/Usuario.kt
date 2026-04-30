@@ -6,4 +6,8 @@ data class Usuario(
     val semestre: String = "",
     val correo: String = "",
     val avatar: Int = 0
+    val username: String,
+    val email: String,
+    val carrera: String,
+    val fotoUrl: String? = null
 )
