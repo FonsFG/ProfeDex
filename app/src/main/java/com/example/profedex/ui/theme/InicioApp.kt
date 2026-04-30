@@ -14,6 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
 import com.example.profedex.ui.screens.InicioScreen
+import com.example.profedex.ui.screens.PerfilUsuarioScreen
 
 object Rutas {
     const val INICIO = "inicio"
@@ -96,7 +97,7 @@ fun InicioApp() {
             composable(Rutas.INICIO) {
                 InicioScreen()
             }
-            composable(Rutas.PERFIL)    { PlaceholderScreen("Perfil") }
+            composable(Rutas.PERFIL)    { PerfilUsuarioScreen() }
             composable(Rutas.EVALUAR)  { PlaceholderScreen("Evaluar") }
             //composable(Rutas.FACULTAD)  { PlaceholderScreen("Facultad") }
             composable(Rutas.AJUSTES)   { PlaceholderScreen("Ajustes") }
