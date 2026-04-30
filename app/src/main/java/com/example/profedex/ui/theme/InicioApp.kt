@@ -19,13 +19,15 @@ import com.example.profedex.ui.screens.ProfesorProfileScreen
 import com.example.profedex.viewmodel.ProfesorViewModel
 import androidx.navigation.NavGraphBuilder
 import com.example.profedex.ui.screens.EvaluarProfesorScreen
+import com.example.profedex.ui.screens.LoginScreen
 
 object Rutas {
+    const val LOGIN = "login"
     const val INICIO = "inicio"
-    const val PERFIL = "perfil"
+    const val PROFE = "profe"      // Pantalla de info del profesor
+    const val PERFIL = "perfil"    // Pantalla del usuario/alumno
     const val EVALUAR = "evaluar"
-    //const val FACULTAD = "facultad" //aqui pueden poner otra pestaña
-    const val AJUSTES = "ajustes" //O PONER MENU
+    const val AJUSTES = "ajustes"
 }
 
 data class ItemNavBar(
@@ -95,39 +97,51 @@ fun InicioApp() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Rutas.INICIO,
+            startDestination = Rutas.LOGIN,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(Rutas.INICIO) {
-                InicioScreen(
-                    onBuscarClick = { /* ... */ },
-                    onProfesorClick = { id ->
-                        navController.navigate(Rutas.PERFIL)
-                    }
+            composable(Rutas.LOGIN) {
+                LoginScreen(
+                    onLoginSuccess = { navController.navigate(Rutas.INICIO) { popUpTo(Rutas.LOGIN) { inclusive = true } } }
                 )
             }
 
-            // Usamos una función de extensión para "encapsular" el perfil
-            perfilGraph(
+            composable(Rutas.INICIO) {
+                InicioScreen(
+                    onProfesorClick = { id -> navController.navigate(Rutas.PROFE) }, // Te manda a ver al profe
+                    onBuscarClick = { /* Lógica de buscar */ }
+                )
+            }
+
+            // El grafo del Profesor (la pantalla con ratings)
+            profesorGraph(
                 onBackClick = { navController.popBackStack() },
                 onEvaluarClick = { navController.navigate(Rutas.EVALUAR) }
             )
 
-            composable(Rutas.EVALUAR) { EvaluarProfesorScreen(
-                onBackClick = { navController.popBackStack() }
-            ) }
-            composable(Rutas.AJUSTES)  { PlaceholderScreen("Ajustes") }
+            composable(Rutas.EVALUAR) {
+                EvaluarProfesorScreen(onBackClick = { navController.popBackStack() })
+            }
+
+            // Esta es la pestaña de "Perfil" en tu BottomBar (donde verías tus datos de alumno)
+            composable(Rutas.PERFIL) {
+                PlaceholderScreen("Mi Perfil de Alumno")
+            }
+
+            composable(Rutas.AJUSTES) {
+                PlaceholderScreen("Ajustes")
+            }
         }
     }
 }
 
 
 // Esta función extiende el NavGraphBuilder para manejar la ruta del perfil
-fun NavGraphBuilder.perfilGraph(
+fun NavGraphBuilder.profesorGraph(
     onBackClick: () -> Unit,
     onEvaluarClick: () -> Unit
 ) {
-    composable(Rutas.PERFIL) {
+    composable(Rutas.PROFE) {
         // El ViewModel se obtiene aquí, manteniendo el NavHost principal despejado
         val profeViewModel: ProfesorViewModel = viewModel()
         val profesor by profeViewModel.profesorState.collectAsState()

@@ -22,11 +22,11 @@ fun ProfesorProfileApp() {
             InicioScreen(
                 onBuscarClick = { /* Lógica de buscar */ },
                 onProfesorClick = { id ->
-                    pantallaActual = "perfil"
+                    pantallaActual = "profe"
                 }
             )
         }
-        "perfil" -> {
+        "profe" -> {
             profesor?.let { profe ->
                 ProfesorProfileScreen(
                     professor = profe,
