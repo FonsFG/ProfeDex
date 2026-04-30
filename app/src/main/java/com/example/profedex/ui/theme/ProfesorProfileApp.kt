@@ -2,6 +2,7 @@ package com.example.profedex.ui.theme
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.profedex.ui.screens.EvaluarProfesorScreen
 import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
 import com.example.profedex.viewmodel.ProfesorViewModel
@@ -32,9 +33,18 @@ fun ProfesorProfileApp() {
                     reviews = profeViewModel.getReviewsDePrueba(), // <--- AQUÍ ESTÁ LA PIEZA QUE FALTABA
                     onBackClick = {
                         pantallaActual = "inicio"
-                    }
+                    },
+                    onEvaluarClick = { pantallaActual = "evaluar" }
                 )
             }
+        }
+        "evaluar" -> {
+            EvaluarProfesorScreen(
+                onBackClick = {
+                    // Al dar atrás en evaluar, regresamos al perfil
+                    pantallaActual = "perfil"
+                }
+            )
         }
     }
 }

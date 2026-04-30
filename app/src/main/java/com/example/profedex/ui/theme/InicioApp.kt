@@ -18,6 +18,7 @@ import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
 import com.example.profedex.viewmodel.ProfesorViewModel
 import androidx.navigation.NavGraphBuilder
+import com.example.profedex.ui.screens.EvaluarProfesorScreen
 
 object Rutas {
     const val INICIO = "inicio"
@@ -108,10 +109,13 @@ fun InicioApp() {
 
             // Usamos una función de extensión para "encapsular" el perfil
             perfilGraph(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onEvaluarClick = { navController.navigate(Rutas.EVALUAR) }
             )
 
-            composable(Rutas.EVALUAR) { PlaceholderScreen("Evaluar") }
+            composable(Rutas.EVALUAR) { EvaluarProfesorScreen(
+                onBackClick = { navController.popBackStack() }
+            ) }
             composable(Rutas.AJUSTES)  { PlaceholderScreen("Ajustes") }
         }
     }
@@ -120,7 +124,8 @@ fun InicioApp() {
 
 // Esta función extiende el NavGraphBuilder para manejar la ruta del perfil
 fun NavGraphBuilder.perfilGraph(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEvaluarClick: () -> Unit
 ) {
     composable(Rutas.PERFIL) {
         // El ViewModel se obtiene aquí, manteniendo el NavHost principal despejado
@@ -131,7 +136,8 @@ fun NavGraphBuilder.perfilGraph(
             ProfesorProfileScreen(
                 professor = profe,
                 reviews = profeViewModel.getReviewsDePrueba(),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
+                onEvaluarClick = onEvaluarClick
             )
         }
     }
