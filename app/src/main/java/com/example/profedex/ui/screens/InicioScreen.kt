@@ -105,7 +105,8 @@ fun InicioScreen(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            onClick = onBuscarClick
         ) {
             Row(
                 modifier = Modifier

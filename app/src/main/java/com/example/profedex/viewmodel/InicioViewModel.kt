@@ -28,7 +28,8 @@ class InicioViewModel : ViewModel() { //Aqui va lo de la Api
                 descripcion = "Excelente profesor",
                 averageRating = 4.8,
                 difficulty = 2.0,
-                tags = listOf("Claro", "Puntual")
+                tags = listOf("Claro", "Puntual"),
+                materia = "Cálculo I"
             )
         )
         _profesoresPesados.value = listOf(
@@ -41,7 +42,8 @@ class InicioViewModel : ViewModel() { //Aqui va lo de la Api
                 descripcion = "Muy exigente",
                 averageRating = 2.5,
                 difficulty = 3.5,
-                tags = listOf("Difícil", "Exigente")
+                tags = listOf("Difícil", "Exigente"),
+                materia = "Física III"
             )
         )
     }

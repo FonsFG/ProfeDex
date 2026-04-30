@@ -9,5 +9,8 @@ data class Profesor(
     val descripcion: String,
     val averageRating: Double,
     val difficulty: Double,
-    val tags: List<String>
+    val tags: List<String>,
+
+    val materia: String,
+    val avatarUrl: String = "",   // URL de imagen (vacío = usa placeholder)
 )
