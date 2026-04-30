@@ -1,27 +1,28 @@
-package profedex.ui.screens // Paquete ajustado a tu directorio real
+package com.example.profedex.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check // Cambiado a Check para evitar librerías pesadas
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel // <-- Observa la 'v' minúscula al final
-import profedex.Viewmodel.EvaluarProfesorViewModel
-import profedex.ui.components.RatingBar
-import profedex.ui.components.TagChip
+import androidx.lifecycle.viewmodel.compose.viewModel
 import profedex.viewmodel.EvaluarProfesorViewModel
+import com.example.profedex.R
+import com.example.profedex.ui.components.RatingBar
+import com.example.profedex.ui.components.TagChip
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -39,19 +40,19 @@ fun EvaluarProfesorScreen(
             .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── LOGO SUPERIOR (Comentado temporalmente por falta de recurso) ──
-        /*
+        // ── LOGO SUPERIOR ──────────────────────────────────────────
         Box(
-            modifier = Modifier.fillMaxWidth().padding(top = 32.dp, bottom = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp, bottom = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_profedex),
-                contentDescription = "Logo ProfeDex",
-                modifier = Modifier.size(64.dp)
+                contentDescription = "Logo de ProfeDex",
+                modifier = Modifier.size(80.dp)
             )
         }
-        */
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -66,7 +67,7 @@ fun EvaluarProfesorScreen(
             ) {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver",
                         tint = colorScheme.onError
                     )

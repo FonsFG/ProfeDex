@@ -7,14 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-// Estado inmutable de la UI. Compose reaccionará a los cambios de esta clase.
 data class EvaluarUiState(
-    val profesorNombre: String = "Fulanito", // Mockeado para diseño
-    val materia: String = "Tal",             // Mockeado para diseño
+    val profesorNombre: String = "Ing. Roberto Díaz",
+    val materia: String = "Control Automático",
     val dominio: Int = 0,
     val claridad: Int = 0,
     val dificultad: Int = 0,
-    // Aquí integramos los comentarios de tu profesor como Tags
     val tagsDisponibles: List<String> = listOf(
         "Puntual", "Comprometido", "Califica rápido",
         "Clase dinámica", "Evaluación justa", "Asistencia obligatoria"
@@ -40,7 +38,6 @@ class EvaluarProfesorViewModel : ViewModel() {
         _uiState.update { it.copy(dificultad = rating) }
     }
 
-    // Lógica eficiente para seleccionar/deseleccionar Tags (Chips)
     fun onTagToggled(tag: String) {
         _uiState.update { state ->
             val nuevosTags = if (state.tagsSeleccionados.contains(tag)) {
@@ -59,9 +56,8 @@ class EvaluarProfesorViewModel : ViewModel() {
     fun enviarEvaluacion() {
         val estadoActual = _uiState.value
 
-        // Se empaqueta la información en el modelo de datos
         val nuevaEvaluacion = Evaluacion(
-            profesorId = "ID_TEMPORAL", // Se pasará dinámicamente en el futuro
+            profesorId = "ID_TEMPORAL",
             dominio = estadoActual.dominio,
             claridad = estadoActual.claridad,
             dificultad = estadoActual.dificultad,

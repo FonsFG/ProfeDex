@@ -1,6 +1,6 @@
 package com.example.profedex.data.model
 
-// Modelo de datos puro que representa la evaluación final que se enviará a la base de datos
+//evaluación final que se enviará a la base de datos
 data class Evaluacion(
     val profesorId: String,
     val dominio: Int,
