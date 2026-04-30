@@ -11,3 +11,12 @@ data class Profesor(
     val difficulty: Double,
     val tags: List<String>
 )
+
+data class Estadisticas(
+    val conocimiento: Int,
+    val claridad: Int,
+    val puntualidad: Int,
+    val dificultad: Int,
+    val flexibilidad: Int,
+    val humor: Int
+)
