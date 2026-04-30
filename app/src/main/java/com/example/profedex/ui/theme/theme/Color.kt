@@ -1,4 +1,4 @@
-package com.example.profedex.ui.theme
+package com.example.profedex.ui.theme.theme
 
 import androidx.compose.ui.graphics.Color
 
