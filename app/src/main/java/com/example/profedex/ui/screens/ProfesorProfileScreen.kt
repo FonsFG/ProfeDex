@@ -45,7 +45,7 @@ fun ProfesorProfileScreen(
                 title = { 
                     Text(
                         "Perfil del Profesor", 
-                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.onPrimary)
+                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.primary)
                     ) 
                 },
                 navigationIcon = {
@@ -53,12 +53,12 @@ fun ProfesorProfileScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar",
-                            tint = colorScheme.onPrimary
+                            tint = colorScheme.primary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.primary
+                    containerColor = colorScheme.onError
                 )
             )
         }
@@ -180,7 +180,11 @@ fun ProfesorProfileScreen(
                     Button(
                         onClick = onEvaluarClick,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorScheme.onError,
+                            contentColor = colorScheme.primary
+                        )
                     ) {
                         Text("EVALUAR PROFESOR", style = typography.titleLarge.copy(fontSize = 14.sp))
                     }

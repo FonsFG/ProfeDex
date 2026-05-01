@@ -100,7 +100,7 @@ fun LoginScreen(
             Text(
                 text = "Iniciar Sesión",
                 style = typography.titleLarge.copy(fontSize = 24.sp),
-                color = colorScheme.primary,
+                color = colorScheme.onError, // Cambio de primary a onError
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Start
             )
@@ -111,15 +111,15 @@ fun LoginScreen(
                 value = username,
                 onValueChange = { username = it },
                 label = { Text("Usuario", style = typography.bodyLarge) },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = colorScheme.primary) },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = colorScheme.onError) }, // Cambio de primary a onError
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.primary,
+                    focusedBorderColor = colorScheme.onError, // Cambio de primary a onError
                     unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
-                    focusedLabelColor = colorScheme.primary,
-                    cursorColor = colorScheme.primary
+                    focusedLabelColor = colorScheme.onError, // Cambio de primary a onError
+                    cursorColor = colorScheme.onError // Cambio de primary a onError
                 )
             )
             
@@ -129,14 +129,14 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Contraseña", style = typography.bodyLarge) },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = colorScheme.primary) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = colorScheme.onError) }, // Cambio de primary a onError
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = icon,
                             contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                            tint = colorScheme.primary
+                            tint = colorScheme.onError // Cambio de primary a onError
                         )
                     }
                 },
@@ -145,10 +145,10 @@ fun LoginScreen(
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.primary,
+                    focusedBorderColor = colorScheme.onError, // Cambio de primary a onError
                     unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
-                    focusedLabelColor = colorScheme.primary,
-                    cursorColor = colorScheme.primary
+                    focusedLabelColor = colorScheme.onError, // Cambio de primary a onError
+                    cursorColor = colorScheme.onError // Cambio de primary a onError
                 )
             )
             
@@ -161,8 +161,8 @@ fun LoginScreen(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.primary,
-                    contentColor = Color.White
+                    containerColor = colorScheme.onError, // Cambio de primary a onError
+                    contentColor = colorScheme.primary // Cambio para contraste
                 )
             ) {
                 Text(
@@ -185,7 +185,7 @@ fun LoginScreen(
                     Text(
                         text = "Crea una cuenta",
                         style = typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                        color = colorScheme.primary
+                        color = colorScheme.onError // Cambio de primary a onError
                     )
                 }
             }
@@ -195,7 +195,7 @@ fun LoginScreen(
             Text(
                 text = "Hecho por y para la comunidad FI",
                 style = typography.bodyLarge.copy(fontSize = 10.sp),
-                color = colorScheme.primary.copy(alpha = 0.6f),
+                color = colorScheme.onError.copy(alpha = 0.6f), // Cambio de primary a onError
                 textAlign = TextAlign.Center
             )
             

@@ -31,7 +31,7 @@ fun EvaluationScreen(onBackClick: () -> Unit = {}) {
                 title = { 
                     Text(
                         "Evaluar Profesor", 
-                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.onPrimary)
+                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.primary) // Ajuste contraste
                     ) 
                 },
                 navigationIcon = {
@@ -39,12 +39,12 @@ fun EvaluationScreen(onBackClick: () -> Unit = {}) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar",
-                            tint = colorScheme.onPrimary
+                            tint = colorScheme.primary // Ajuste contraste
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.primary
+                    containerColor = colorScheme.onError // Cambio de primary a onError
                 )
             )
         }
@@ -83,7 +83,6 @@ fun EvaluationScreen(onBackClick: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- SECCIÓN DE COMENTARIOS RECUPERADA ---
             Text(text = "Tu opinión personal:", style = typography.bodyLarge)
             OutlinedTextField(
                 value = comentario,
@@ -95,7 +94,7 @@ fun EvaluationScreen(onBackClick: () -> Unit = {}) {
                 placeholder = { Text("Escribe aquí tu experiencia con el profesor...", style = typography.bodyLarge.copy(color = Color.Gray)) },
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.primary,
+                    focusedBorderColor = colorScheme.onError, // Cambio de primary a onError
                     unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f)
                 ),
                 textStyle = typography.bodyLarge
@@ -108,7 +107,11 @@ fun EvaluationScreen(onBackClick: () -> Unit = {}) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.onError, // Cambio de primary a onError
+                    contentColor = colorScheme.primary // Ajuste contraste
+                )
             ) {
                 Text("SUBIR CALIFICACIÓN", style = typography.titleLarge.copy(fontSize = 16.sp))
             }

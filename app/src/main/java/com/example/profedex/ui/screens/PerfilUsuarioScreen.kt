@@ -51,13 +51,13 @@ fun PerfilUsuarioScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colorScheme.primary)
+                .background(colorScheme.onError) // Cambio de primary a onError
                 .padding(vertical = 24.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "MI PERFIL",
-                color = colorScheme.onPrimary,
+                color = colorScheme.primary, // Ajuste para visibilidad sobre blanco
                 style = typography.titleLarge.copy(fontSize = 24.sp)
             )
         }
@@ -104,7 +104,7 @@ fun PerfilUsuarioScreen(
                                     .size(45.dp)
                                     .clip(CircleShape)
                                     .clickable { viewModel.actualizarAvatar(index) }
-                                    .background(if (usuario.avatar == index) colorScheme.primary else Color.Transparent),
+                                    .background(if (usuario.avatar == index) colorScheme.onError else Color.Transparent), // Cambio de primary a onError
                                 contentScale = ContentScale.Crop
                             )
                         }
@@ -130,7 +130,8 @@ fun PerfilUsuarioScreen(
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (modoEdicion) colorScheme.tertiary else colorScheme.primary
+                        containerColor = if (modoEdicion) colorScheme.tertiary else colorScheme.onError, // Cambio de primary a onError
+                        contentColor = if (modoEdicion) colorScheme.onTertiary else colorScheme.primary // Ajuste contraste
                     )
                 ) {
                     Text(
@@ -142,7 +143,7 @@ fun PerfilUsuarioScreen(
                 if (mensajeGuardado && !modoEdicion) {
                     Text(
                         "¡Cambios guardados con éxito! ✅",
-                        color = colorScheme.primary,
+                        color = colorScheme.onError, // Cambio de primary a onError (podría ser invisible sobre blanco)
                         style = typography.bodyLarge.copy(fontSize = 12.sp),
                         modifier = Modifier.padding(top = 12.dp)
                     )
@@ -159,7 +160,7 @@ fun PerfilField(label: String, value: String, enabled: Boolean, onValueChange: (
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text(
             text = label, 
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp, color = MaterialTheme.colorScheme.onError) // Cambio de primary a onError
         )
         OutlinedTextField(
             value = value,
@@ -171,7 +172,7 @@ fun PerfilField(label: String, value: String, enabled: Boolean, onValueChange: (
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                focusedBorderColor = MaterialTheme.colorScheme.primary
+                focusedBorderColor = MaterialTheme.colorScheme.onError // Cambio de primary a onError
             )
         )
     }

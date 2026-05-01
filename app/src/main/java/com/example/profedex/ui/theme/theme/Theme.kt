@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 
 private val lightScheme = lightColorScheme(
-    primary = primaryLight,
+    primary = onErrorLight,
     onPrimary = onPrimaryLight,
     primaryContainer = primaryContainerLight,
     onPrimaryContainer = onPrimaryContainerLight,
@@ -27,7 +27,7 @@ private val lightScheme = lightColorScheme(
     tertiaryContainer = tertiaryContainerLight,
     onTertiaryContainer = onTertiaryContainerLight,
     error = errorLight,
-    onError = onErrorLight,
+    onError = onErrorContainerLight,
     errorContainer = errorContainerLight,
     onErrorContainer = onErrorContainerLight,
     background = backgroundLight,

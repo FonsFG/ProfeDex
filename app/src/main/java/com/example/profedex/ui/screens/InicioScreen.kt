@@ -2,6 +2,7 @@ package com.example.profedex.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +31,7 @@ import com.example.profedex.viewmodel.InicioViewModel
 @Composable
 fun InicioScreen(
     onProfesorClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel()
 ) {
     val profesoresRecomendados by viewModel.profesoresRecomendados.collectAsStateWithLifecycle()
@@ -45,7 +47,7 @@ fun InicioScreen(
     ) {
         // ── HEADER ────────────────────────
         Surface(
-            color = colorScheme.primary,
+            color = colorScheme.onError, // Cambio de primary a onError
             shadowElevation = 4.dp
         ) {
             Row(
@@ -63,12 +65,12 @@ fun InicioScreen(
                 Column {
                     Text(
                         text = "PROFEDEX",
-                        color = colorScheme.onPrimary,
+                        color = colorScheme.primary, // Ajuste para que se vea sobre el fondo onError
                         style = typography.titleLarge.copy(fontSize = 22.sp, letterSpacing = 1.sp)
                     )
                     Text(
                         text = "Facultad de Ingeniería UNAM",
-                        color = colorScheme.onPrimary.copy(alpha = 0.8f),
+                        color = colorScheme.primary.copy(alpha = 0.8f),
                         style = typography.bodyLarge.copy(fontSize = 11.sp)
                     )
                 }
@@ -103,7 +105,8 @@ fun InicioScreen(
         OutlinedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .clickable { onSearchClick() },
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
         ) {
@@ -115,7 +118,7 @@ fun InicioScreen(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Buscar",
-                    tint = colorScheme.primary
+                    tint = colorScheme.onError // Cambio de primary a onError
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(

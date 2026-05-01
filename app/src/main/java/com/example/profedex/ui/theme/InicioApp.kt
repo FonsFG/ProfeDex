@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
+import com.example.profedex.ui.screens.BuscarProfesoresScreen
 import com.example.profedex.ui.screens.EvaluationScreen
 import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.LoginScreen
@@ -25,6 +26,7 @@ object Rutas {
     const val PERFIL = "perfil"
     const val PROFESOR = "profesor"
     const val EVALUACION = "evaluacion"
+    const val BUSCADOR = "buscador"
 }
 
 data class ItemNavBar(
@@ -51,7 +53,7 @@ fun InicioApp() {
 
     val backStack by navController.currentBackStackEntryAsState()
     val rutaActual = backStack?.destination?.route
-    val mostrarBottomBar = rutaActual != Rutas.LOGIN
+    val mostrarBottomBar = rutaActual != Rutas.LOGIN && rutaActual != Rutas.BUSCADOR
 
     Scaffold(
         bottomBar = {
@@ -85,8 +87,8 @@ fun InicioApp() {
                                 ) 
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = colorScheme.primary,
-                                selectedTextColor = colorScheme.primary,
+                                selectedIconColor = colorScheme.onError, // Cambio de primary a onError
+                                selectedTextColor = colorScheme.onError, // Cambio de primary a onError
                                 unselectedIconColor = colorScheme.onSurfaceVariant,
                                 unselectedTextColor = colorScheme.onSurfaceVariant,
                                 indicatorColor = colorScheme.secondaryContainer
@@ -118,6 +120,9 @@ fun InicioApp() {
                 InicioScreen(
                     onProfesorClick = {
                         navController.navigate(Rutas.PROFESOR)
+                    },
+                    onSearchClick = {
+                        navController.navigate(Rutas.BUSCADOR)
                     }
                 )
             }
@@ -145,6 +150,13 @@ fun InicioApp() {
                         onEvaluarClick = { navController.navigate(Rutas.EVALUACION) }
                     )
                 }
+            }
+
+            // 6. Buscador
+            composable(Rutas.BUSCADOR) {
+                BuscarProfesoresScreen(
+                    onVolverClick = { navController.popBackStack() }
+                )
             }
         }
     }
