@@ -30,7 +30,8 @@ class ProfesorViewModel : ViewModel() {
             descripcion = "Experto en control y automatización. Sus clases son duras pero te dejan filoso para el mundo real.",
             averageRating = 9.5,
             difficulty = 8.0,
-            tags = listOf("Mecatrónica", "Duro", "God", "Amigable")
+            tags = listOf("Mecatrónica", "Duro", "God", "Amigable"),
+            materia = "Control II"
         )
     }
 

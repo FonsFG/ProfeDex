@@ -4,17 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -31,73 +27,60 @@ import com.example.profedex.R
 import com.example.profedex.data.model.Profesor
 import com.example.profedex.data.model.Review
 import com.example.profedex.ui.components.ReviewCard
-import androidx.compose.ui.text.style.TextAlign
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick: () -> Unit) {
-    // 1. Scaffold
+fun ProfesorProfileScreen(
+    professor: Profesor, 
+    reviews: List<Review>,
+    onBackClick: () -> Unit,
+    onEvaluarClick: () -> Unit
+) {
+    val typography = MaterialTheme.typography
+    val colorScheme = MaterialTheme.colorScheme
+
     Scaffold(
         topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding(),
-                shadowElevation = 4.dp
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo_profedex),
-                        contentDescription = "Logo ProfeDex",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "PROFEDEX",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 22.sp,
-                                letterSpacing = 1.sp
-                            )
-                        )
-                        Text(
-                            text = "Facultad de Ingeniería UNAM",
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 11.sp)
+            TopAppBar(
+                title = { 
+                    Text(
+                        "Perfil del Profesor", 
+                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.onPrimary)
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Regresar",
+                            tint = colorScheme.onPrimary
                         )
                     }
-                }
-            }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.primary
+                )
+            )
         }
-    ) { paddingValues -> // Este padding evita que el contenido se meta debajo de la barra roja
+    ) { paddingValues ->
 
-        // 3. EL CUERPO DESLIZABLE (Todo aquí adentro se mueve)
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Sección de la imagen del profesor y calificaciones
             item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp), // Un poco más de aire
-                    horizontalAlignment = Alignment.CenterHorizontally // Centra todo lo que esté suelto
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // --- FILA SUPERIOR: IMAGEN + RATINGS ---
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center // Centra la pareja Imagen-Textos
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        // Imagen con borde dinámico (opcional: el borde también puede cambiar de color)
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(150.dp))
                         {
                             AsyncImage(
@@ -113,38 +96,34 @@ fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
-                            // Nombre del Profesor
                             Text(
                                 text = professor.name,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = typography.titleLarge.copy(fontSize = 18.sp),
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
-                                lineHeight = 18.sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
 
-                            // Opcional: Departamento en pequeño
                             Text(
                                 text = professor.department,
-                                style = MaterialTheme.typography.bodySmall,
+                                style = typography.bodyLarge.copy(fontSize = 12.sp),
                                 color = Color.Gray,
                                 textAlign = TextAlign.Center
                             )
                         }
-                        Spacer(modifier = Modifier.width(24.dp)) // Espacio entre foto y datos
-                        // Ratings apilados a la derecha
+                        Spacer(modifier = Modifier.width(24.dp))
                         Column(
                             horizontalAlignment = Alignment.Start
                         ) {
                             RatingDisplay(
                                 label = "PUNTUACIÓN",
-                                value = professor.averageRating.toString(),
+                                value = "%.1f".format(professor.averageRating),
                                 color = getRatingColor(professor.averageRating)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             RatingDisplay(
                                 label = "DIFICULTAD",
-                                value = professor.difficulty.toString(),
+                                value = "%.1f".format(professor.difficulty),
                                 color = getDifficultyColor(professor.difficulty)
                             )
                         }
@@ -152,25 +131,23 @@ fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // --- SECCIÓN DE TAGS (Centrada) ---
                     Text(
-                        text = "TIPOS",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        text = "MATERIA: ${professor.materia}",
+                        style = typography.titleLarge.copy(fontSize = 14.sp),
+                        color = colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    // Usamos una Row con Flow o simplemente centrada
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        professor.tags.take(2).forEach { tag -> // Mostramos los primeros 3 para que no se amontone
+                        professor.tags.forEach { tag ->
                             SuggestionChip(
                                 onClick = { },
-                                label = { Text(tag) },
+                                label = { Text(tag, style = typography.bodyLarge.copy(fontSize = 10.sp)) },
                                 modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
@@ -178,85 +155,85 @@ fun ProfesorProfileScreen(professor: Profesor, reviews: List<Review>,onBackClick
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // --- DESCRIPCIÓN ---
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.1f)),
+                        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant.copy(alpha = 0.3f)),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Text(
                                 text = "ACERCA DEL PROFESOR",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Black,
-                                color = Color.Gray
+                                style = typography.titleLarge.copy(fontSize = 12.sp),
+                                color = colorScheme.outline
                             )
                             Text(
                                 text = professor.descripcion,
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = typography.bodyLarge.copy(fontSize = 14.sp),
                                 modifier = Modifier.padding(top = 8.dp),
-                                textAlign = TextAlign.Center // Texto de descripción centrado
+                                textAlign = TextAlign.Justify
                             )
                         }
                     }
 
-                    Divider(Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                }
-            }
-
-            // Sección para CALIFICAR (Un espacio antes de las reseñas)
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("¿Qué tal enseña este ProfeMon?", fontWeight = FontWeight.Bold)
-                        Button(onClick = { /* Abrir formulario */ }) {
-                            Text("Escribir Reseña")
-                        }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Button(
+                        onClick = onEvaluarClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("EVALUAR PROFESOR", style = typography.titleLarge.copy(fontSize = 14.sp))
                     }
+
+                    HorizontalDivider(Modifier.padding(vertical = 24.dp), thickness = 0.5.dp)
+                    
+                    Text(
+                        text = "RESEÑAS DE ALUMNOS",
+                        style = typography.titleLarge.copy(fontSize = 16.sp),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
 
-            // Sección de RESEÑAS (Muchos elementos)
             items(reviews) { review ->
-                ReviewCard(review) // Tu diseño de cada comentario
+                ReviewCard(review)
             }
         }
     }
 }
-//Para ver la calificación
+
 @Composable
 fun RatingDisplay(label: String, value: String, color: Color) {
     Column {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 10.sp),
             color = Color.Gray
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
             fontWeight = FontWeight.Black,
             color = color
         )
     }
 }
 
-// Rating: Alto = Verde (Bueno), Bajo = Rojo (Malo)
 fun getRatingColor(value: Double): Color {
     return when {
-        value >= 8.5 -> Color(0xFF4CAF50) // Verde
-        value >= 7.0 -> Color(0xFFFFC107) // Amarillo/Naranja
-        else -> Color(0xFFF44336)         // Rojo
+        value >= 8.5 -> Color(0xFF4CAF50)
+        value >= 7.0 -> Color(0xFFFFC107)
+        else -> Color(0xFFF44336)
     }
 }
 
-// Dificultad: Alta = Rojo (Peligro), Baja = Verde (Barco)
 fun getDifficultyColor(value: Double): Color {
     return when {
-        value >= 8.0 -> Color(0xFFF44336) // Rojo
-        value >= 5.0 -> Color(0xFFFFC107) // Amarillo
-        else -> Color(0xFF4CAF50)         // Verde
+        value >= 8.0 -> Color(0xFFF44336)
+        value >= 5.0 -> Color(0xFFFFC107)
+        else -> Color(0xFF4CAF50)
     }
 }

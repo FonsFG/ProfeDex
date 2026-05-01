@@ -29,7 +29,7 @@ import com.example.profedex.viewmodel.InicioViewModel
 
 @Composable
 fun InicioScreen(
-    onBuscarClick: () -> Unit = {},
+    onProfesorClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel()
 ) {
     val profesoresRecomendados by viewModel.profesoresRecomendados.collectAsStateWithLifecycle()
@@ -43,9 +43,9 @@ fun InicioScreen(
             .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── HEADER (Ahora Rojo del tema) ────────────────────────
+        // ── HEADER ────────────────────────
         Surface(
-            color = colorScheme.error,
+            color = colorScheme.primary,
             shadowElevation = 4.dp
         ) {
             Row(
@@ -105,8 +105,7 @@ fun InicioScreen(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-            onClick = onBuscarClick
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
         ) {
             Row(
                 modifier = Modifier
@@ -143,13 +142,13 @@ fun InicioScreen(
             TarjetaCategoria(
                 modifier = Modifier.weight(1f),
                 icono = R.drawable.estrella_recomendado,
-                fotoProfesor = R.drawable.profe_recomendado,
+                fotoProfesor = R.drawable.profesor_recomendado,
                 titulo = "PROFES MÁS RECOMENDADOS",
                 descripcion = "Los mejores evaluados por la comunidad.",
                 valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
                 etiqueta = "Promedio",
                 colorEtiqueta = colorScheme.tertiary,
-                onClick = onBuscarClick
+                onClick = onProfesorClick
             )
 
             TarjetaCategoria(
@@ -161,7 +160,7 @@ fun InicioScreen(
                 valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
                 etiqueta = "Dificultad",
                 colorEtiqueta = colorScheme.error,
-                onClick = onBuscarClick
+                onClick = onProfesorClick
             )
         }
 
@@ -199,7 +198,6 @@ fun TarjetaCategoria(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Usamos Image sin tinte para mantener el color original del logo
                 Image(
                     painter = painterResource(id = icono),
                     contentDescription = null,

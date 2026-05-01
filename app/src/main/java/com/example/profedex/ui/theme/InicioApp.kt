@@ -1,34 +1,30 @@
 package com.example.profedex.ui.theme
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
-import com.example.profedex.data.model.Usuario
+import com.example.profedex.ui.screens.EvaluationScreen
 import com.example.profedex.ui.screens.InicioScreen
-import com.example.profedex.ui.screens.PerfilUsuarioScreen
-import com.example.profedex.ui.screens.BuscarProfesoresScreen
 import com.example.profedex.ui.screens.LoginScreen
+import com.example.profedex.ui.screens.PerfilUsuarioScreen
+import com.example.profedex.ui.screens.ProfesorProfileScreen
+import com.example.profedex.viewmodel.ProfesorViewModel
 
 object Rutas {
     const val LOGIN = "login"
     const val INICIO = "inicio"
-    const val BUSCADOR = "buscador"
     const val PERFIL = "perfil"
-    const val EVALUAR = "evaluar"
-    //const val FACULTAD = "facultad" //aqui pueden poner otra pestaña
-    const val AJUSTES = "ajustes" //O PONER MENU
+    const val PROFESOR = "profesor"
+    const val EVALUACION = "evaluacion"
 }
 
 data class ItemNavBar(
@@ -42,27 +38,24 @@ fun InicioApp() {
     val navController = rememberNavController()
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
+    
+    val profesorViewModel: ProfesorViewModel = viewModel()
 
-    // Estado para guardar el usuario una vez que inicie sesión
-    var usuarioActual by remember { mutableStateOf<Usuario?>(null) }
-
+    // Definición de los botones de la barra inferior
     val itemsNavBar = listOf(
-        ItemNavBar(Rutas.INICIO,    R.drawable.inicio, "Inicio"),
-        ItemNavBar(Rutas.PERFIL,    R.drawable.perfil,   "Perfil"),
-        ItemNavBar(Rutas.EVALUAR,  R.drawable.registro, "Evaluar"),
-        //ItemNavBar(Rutas.FACULTAD,  R.drawable.facultad, "Facultad"),
-        ItemNavBar(Rutas.AJUSTES,   R.drawable.ajustes,  "Ajustes")
+        ItemNavBar(Rutas.INICIO,     R.drawable.home,     "Inicio"),
+        ItemNavBar(Rutas.PERFIL,     R.drawable.perfil,   "Perfil"),
+        ItemNavBar(Rutas.EVALUACION, R.drawable.registro, "Evaluación"),
+        ItemNavBar(Rutas.PROFESOR,   R.drawable.perfil,   "Profesor")
     )
 
     val backStack by navController.currentBackStackEntryAsState()
     val rutaActual = backStack?.destination?.route
-
-    // Aqui quite la barra de abajo para el login
-    val mostrarNavBar = rutaActual != Rutas.LOGIN
+    val mostrarBottomBar = rutaActual != Rutas.LOGIN
 
     Scaffold(
         bottomBar = {
-            if (mostrarNavBar) {
+            if (mostrarBottomBar) {
                 NavigationBar(
                     containerColor = colorScheme.surface,
                     tonalElevation = NavigationBarDefaults.Elevation
@@ -85,11 +78,11 @@ fun InicioApp() {
                                     contentDescription = item.descripcion
                                 )
                             },
-                            label = {
+                            label = { 
                                 Text(
-                                    text = item.descripcion,
+                                    text = item.descripcion, 
                                     style = typography.bodyLarge.copy(fontSize = 10.sp)
-                                )
+                                ) 
                             },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colorScheme.primary,
@@ -107,55 +100,52 @@ fun InicioApp() {
         NavHost(
             navController = navController,
             startDestination = Rutas.LOGIN,
-            modifier = Modifier.padding(if (mostrarNavBar) paddingValues else PaddingValues(0.dp))
+            modifier = Modifier.padding(paddingValues)
         ) {
+            // 1. Pantalla de Login
             composable(Rutas.LOGIN) {
                 LoginScreen(
                     onLoginSuccess = {
-                        // usuario para probar la sesión luego jej
-                        usuarioActual = Usuario(
-                            username = "PepePolicia",
-                            email = "hola@gmail.com",
-                            carrera = "Ingeniería mecatrónica"
-                        )
                         navController.navigate(Rutas.INICIO) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
-                    },
-                    onRegisterClick = {
-                        // Aqui va lo del registro, pero eso luego jeje
                     }
                 )
             }
+
+            // 2. Pantalla de Inicio (Pestaña)
             composable(Rutas.INICIO) {
                 InicioScreen(
-                    onBuscarClick = { navController.navigate(Rutas.BUSCADOR) }
+                    onProfesorClick = {
+                        navController.navigate(Rutas.PROFESOR)
+                    }
                 )
             }
-            composable(Rutas.BUSCADOR) {
-                BuscarProfesoresScreen(
-                    onVolverClick = { navController.popBackStack() }
-                )
+            
+            // 3. Perfil de Usuario (Pestaña)
+            composable(Rutas.PERFIL) {
+                PerfilUsuarioScreen()
             }
-            composable(Rutas.PERFIL)    { PerfilUsuarioScreen() }
-            composable(Rutas.PERFIL)    { PlaceholderScreen("Perfil de ${usuarioActual?.username ?: "Usuario"}") }
-            composable(Rutas.EVALUAR)  { PlaceholderScreen("Evaluar") }
-            //composable(Rutas.FACULTAD)  { PlaceholderScreen("Facultad") }
-            composable(Rutas.AJUSTES)   { PlaceholderScreen("Ajustes") }
-        }
-    }
-}
 
-@Composable
-fun PlaceholderScreen(nombre: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = androidx.compose.ui.Alignment.Center
-    ) {
-        Text(
-            text = "Próximamente: $nombre",
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp),
-            color = MaterialTheme.colorScheme.outline
-        )
+            // 4. Evaluación (Pestaña)
+            composable(Rutas.EVALUACION) {
+                EvaluationScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            
+            // 5. Perfil de Profesor (Pestaña / Detalle)
+            composable(Rutas.PROFESOR) {
+                val profesorState by profesorViewModel.profesorState.collectAsState()
+                profesorState?.let { profesor ->
+                    ProfesorProfileScreen(
+                        professor = profesor,
+                        reviews = profesorViewModel.getReviewsDePrueba(),
+                        onBackClick = { navController.popBackStack() },
+                        onEvaluarClick = { navController.navigate(Rutas.EVALUACION) }
+                    )
+                }
+            }
+        }
     }
 }
