@@ -9,23 +9,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
+import com.example.profedex.ui.screens.EvaluarProfesorScreen
 import com.example.profedex.ui.screens.InicioScreen
+import com.example.profedex.ui.screens.LoginScreen
+import com.example.profedex.ui.screens.PerfilUsuarioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
 import com.example.profedex.viewmodel.ProfesorViewModel
-import androidx.navigation.NavGraphBuilder
-import com.example.profedex.ui.screens.EvaluarProfesorScreen
-import com.example.profedex.ui.screens.LoginScreen
 
 object Rutas {
     const val LOGIN = "login"
     const val INICIO = "inicio"
-    const val PROFE = "profe"      // Pantalla de info del profesor
-    const val PERFIL = "perfil"    // Pantalla del usuario/alumno
+    const val PROFE = "profe"
+    const val PERFIL = "perfil"
     const val EVALUAR = "evaluar"
     const val AJUSTES = "ajustes"
 }
@@ -43,11 +44,10 @@ fun InicioApp() {
     val typography = MaterialTheme.typography
 
     val itemsNavBar = listOf(
-        ItemNavBar(Rutas.INICIO,    R.drawable.inicio, "Inicio"),
-        ItemNavBar(Rutas.PERFIL,    R.drawable.perfil,   "Perfil"),
-        ItemNavBar(Rutas.EVALUAR,  R.drawable.registro, "Evaluar"),
-        //ItemNavBar(Rutas.FACULTAD,  R.drawable.facultad, "Facultad"),
-        ItemNavBar(Rutas.AJUSTES,   R.drawable.ajustes,  "Ajustes")
+        ItemNavBar(Rutas.INICIO, R.drawable.inicio, "Inicio"),
+        ItemNavBar(Rutas.PERFIL, R.drawable.perfil, "Perfil"),
+        ItemNavBar(Rutas.EVALUAR, R.drawable.registro, "Evaluar"),
+        ItemNavBar(Rutas.AJUSTES, R.drawable.ajustes, "Ajustes")
     )
 
     Scaffold(
@@ -77,11 +77,11 @@ fun InicioApp() {
                                 contentDescription = item.descripcion
                             )
                         },
-                        label = { 
+                        label = {
                             Text(
-                                text = item.descripcion, 
+                                text = item.descripcion,
                                 style = typography.bodyLarge.copy(fontSize = 10.sp)
-                            ) 
+                            )
                         },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = colorScheme.primary,
@@ -102,30 +102,32 @@ fun InicioApp() {
         ) {
             composable(Rutas.LOGIN) {
                 LoginScreen(
-                    onLoginSuccess = { navController.navigate(Rutas.INICIO) { popUpTo(Rutas.LOGIN) { inclusive = true } } }
+                    onLoginSuccess = {
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.LOGIN) { inclusive = true }
+                        }
+                    }
                 )
             }
 
             composable(Rutas.INICIO) {
                 InicioScreen(
-                    onProfesorClick = { id -> navController.navigate(Rutas.PROFE) }, // Te manda a ver al profe
-                    onBuscarClick = { /* Lógica de buscar */ }
+                    onProfesorClick = { navController.navigate(Rutas.PROFE) },
+                    onBuscarClick = { }
                 )
             }
 
-            // El grafo del Profesor (la pantalla con ratings)
             profesorGraph(
                 onBackClick = { navController.popBackStack() },
                 onEvaluarClick = { navController.navigate(Rutas.EVALUAR) }
             )
 
-            composable(Rutas.EVALUAR) {
-                EvaluarProfesorScreen(onBackClick = { navController.popBackStack() })
+            composable(Rutas.PERFIL) {
+                PerfilUsuarioScreen()
             }
 
-            // Esta es la pestaña de "Perfil" en tu BottomBar (donde verías tus datos de alumno)
-            composable(Rutas.PERFIL) {
-                PlaceholderScreen("Mi Perfil de Alumno")
+            composable(Rutas.EVALUAR) {
+                EvaluarProfesorScreen(onBackClick = { navController.popBackStack() })
             }
 
             composable(Rutas.AJUSTES) {
@@ -135,14 +137,11 @@ fun InicioApp() {
     }
 }
 
-
-// Esta función extiende el NavGraphBuilder para manejar la ruta del perfil
 fun NavGraphBuilder.profesorGraph(
     onBackClick: () -> Unit,
     onEvaluarClick: () -> Unit
 ) {
     composable(Rutas.PROFE) {
-        // El ViewModel se obtiene aquí, manteniendo el NavHost principal despejado
         val profeViewModel: ProfesorViewModel = viewModel()
         val profesor by profeViewModel.profesorState.collectAsState()
 
