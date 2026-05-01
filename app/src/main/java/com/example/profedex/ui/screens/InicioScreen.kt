@@ -145,7 +145,7 @@ fun InicioScreen(
             TarjetaCategoria(
                 modifier = Modifier.weight(1f),
                 icono = R.drawable.estrella_recomendado,
-                fotoProfesor = R.drawable.profesor_recomendado,
+                fotoProfesor = R.drawable.profe_recomendado,
                 titulo = "PROFES MÁS RECOMENDADOS",
                 descripcion = "Los mejores evaluados por la comunidad.",
                 valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
