@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1095162350748",
+    "project_id": "profedex-c531d",
+    "storage_bucket": "profedex-c531d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1095162350748:android:60efd4c67cd7fb39c63159",
+        "android_client_info": {
+          "package_name": "com.example.profedex"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC06OwkpZsnIYaqlXFypLlUajgnLBOKsBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
