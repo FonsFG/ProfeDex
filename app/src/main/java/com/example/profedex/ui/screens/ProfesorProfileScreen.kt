@@ -25,13 +25,14 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.Profesor
+import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.data.model.Review
 import com.example.profedex.ui.components.ReviewCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfesorProfileScreen(
-    professor: Profesor, 
+    professor: Profesor,
     reviews: List<Review>,
     onBackClick: () -> Unit,
     onEvaluarClick: () -> Unit
