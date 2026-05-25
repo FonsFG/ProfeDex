@@ -18,7 +18,8 @@ import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.LoginScreen
 import com.example.profedex.ui.screens.PerfilUsuarioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
-import com.example.profedex.viewmodel.ProfesorViewModel
+import com.example.profedex.viewmodel.ProfesorViewModelFB
+import com.example.profedex.data.model.ProfesorFB  // ← import del modelo
 
 object Rutas {
     const val LOGIN = "login"
@@ -40,10 +41,13 @@ fun InicioApp() {
     val navController = rememberNavController()
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
-    
-    val profesorViewModel: ProfesorViewModel = viewModel()
 
-    // Definición de los botones de la barra inferior
+    val profesorViewModel: ProfesorViewModelFB = viewModel()
+
+    LaunchedEffect(Unit) {
+        profesorViewModel.fetchProfesorFB()
+    }
+
     val itemsNavBar = listOf(
         ItemNavBar(Rutas.INICIO,     R.drawable.home,     "Inicio"),
         ItemNavBar(Rutas.PERFIL,     R.drawable.perfil,   "Perfil"),
@@ -80,15 +84,15 @@ fun InicioApp() {
                                     contentDescription = item.descripcion
                                 )
                             },
-                            label = { 
+                            label = {
                                 Text(
-                                    text = item.descripcion, 
+                                    text = item.descripcion,
                                     style = typography.bodyLarge.copy(fontSize = 10.sp)
-                                ) 
+                                )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = colorScheme.onError, // Cambio de primary a onError
-                                selectedTextColor = colorScheme.onError, // Cambio de primary a onError
+                                selectedIconColor = colorScheme.onError,
+                                selectedTextColor = colorScheme.onError,
                                 unselectedIconColor = colorScheme.onSurfaceVariant,
                                 unselectedTextColor = colorScheme.onSurfaceVariant,
                                 indicatorColor = colorScheme.secondaryContainer
@@ -104,7 +108,6 @@ fun InicioApp() {
             startDestination = Rutas.LOGIN,
             modifier = Modifier.padding(paddingValues)
         ) {
-            // 1. Pantalla de Login
             composable(Rutas.LOGIN) {
                 LoginScreen(
                     onLoginSuccess = {
@@ -115,10 +118,11 @@ fun InicioApp() {
                 )
             }
 
-            // 2. Pantalla de Inicio (Pestaña)
             composable(Rutas.INICIO) {
                 InicioScreen(
-                    onProfesorClick = {
+                    // ← recibe el profesor, lo guarda y navega
+                    onProfesorClick = { profesor ->
+                        profesorViewModel.seleccionarProfesor(profesor)
                         navController.navigate(Rutas.PROFESOR)
                     },
                     onSearchClick = {
@@ -126,33 +130,29 @@ fun InicioApp() {
                     }
                 )
             }
-            
-            // 3. Perfil de Usuario (Pestaña)
+
             composable(Rutas.PERFIL) {
                 PerfilUsuarioScreen()
             }
 
-            // 4. Evaluación (Pestaña)
             composable(Rutas.EVALUACION) {
                 EvaluationScreen(
                     onBackClick = { navController.popBackStack() }
                 )
             }
-            
-            // 5. Perfil de Profesor (Pestaña / Detalle)
+
             composable(Rutas.PROFESOR) {
-                val profesorState by profesorViewModel.profesorState.collectAsState()
-                profesorState?.let { profesor ->
-                    ProfesorProfileScreen(
-                        professor = profesor,
-                        reviews = profesorViewModel.getReviewsDePrueba(),
-                        onBackClick = { navController.popBackStack() },
-                        onEvaluarClick = { navController.navigate(Rutas.EVALUACION) }
-                    )
-                }
+                // ← lee directo del state, Compose redibuja solo cuando cambia
+                val profesor = profesorViewModel.state
+
+                ProfesorProfileScreen(
+                    professor = profesor,
+                    viewModel = profesorViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onEvaluarClick = { navController.navigate(Rutas.EVALUACION) }
+                )
             }
 
-            // 6. Buscador
             composable(Rutas.BUSCADOR) {
                 BuscarProfesoresScreen(
                     onVolverClick = { navController.popBackStack() }

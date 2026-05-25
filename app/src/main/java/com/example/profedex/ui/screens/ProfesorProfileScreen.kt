@@ -12,6 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,26 +31,37 @@ import com.example.profedex.data.model.Profesor
 import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.data.model.Review
 import com.example.profedex.ui.components.ReviewCard
+import com.example.profedex.viewmodel.ProfesorViewModelFB
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfesorProfileScreen(
-    professor: Profesor,
-    reviews: List<Review>,
+    professor: ProfesorFB,
+    viewModel: ProfesorViewModelFB,          // ← recibe el ViewModel
     onBackClick: () -> Unit,
     onEvaluarClick: () -> Unit
 ) {
+    // collectAsState convierte el Flow (río de datos) en algo que Compose entiende
+    val reviews by viewModel.reviews.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    // LaunchedEffect (efecto lanzado una sola vez) llama fetchReviews cuando
+    // la pantalla aparece por primera vez
+    LaunchedEffect(professor.idDoc) {
+        viewModel.fetchReviews(professor.idDoc)
+    }
+
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
-                        "Perfil del Profesor", 
+                        "Perfil del Profesor",
                         style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.primary)
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -82,8 +96,10 @@ fun ProfesorProfileScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(150.dp))
-                        {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.width(150.dp)
+                        ) {
                             AsyncImage(
                                 model = professor.photo,
                                 contentDescription = null,
@@ -95,7 +111,6 @@ fun ProfesorProfileScreen(
                                     .border(3.dp, Color.LightGray, CircleShape),
                                 contentScale = ContentScale.Crop
                             )
-
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = professor.name,
@@ -104,7 +119,6 @@ fun ProfesorProfileScreen(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
-
                             Text(
                                 text = professor.department,
                                 style = typography.bodyLarge.copy(fontSize = 12.sp),
@@ -112,10 +126,10 @@ fun ProfesorProfileScreen(
                                 textAlign = TextAlign.Center
                             )
                         }
+
                         Spacer(modifier = Modifier.width(24.dp))
-                        Column(
-                            horizontalAlignment = Alignment.Start
-                        ) {
+
+                        Column(horizontalAlignment = Alignment.Start) {
                             RatingDisplay(
                                 label = "PUNTUACIÓN",
                                 value = "%.1f".format(professor.averageRating),
@@ -147,7 +161,7 @@ fun ProfesorProfileScreen(
                     ) {
                         professor.tags.forEach { tag ->
                             SuggestionChip(
-                                onClick = { },
+                                onClick = {},
                                 label = { Text(tag, style = typography.bodyLarge.copy(fontSize = 10.sp)) },
                                 modifier = Modifier.padding(horizontal = 4.dp)
                             )
@@ -157,7 +171,9 @@ fun ProfesorProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                        ),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -177,7 +193,7 @@ fun ProfesorProfileScreen(
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    
+
                     Button(
                         onClick = onEvaluarClick,
                         modifier = Modifier.fillMaxWidth(),
@@ -191,25 +207,36 @@ fun ProfesorProfileScreen(
                     }
 
                     HorizontalDivider(Modifier.padding(vertical = 24.dp), thickness = 0.5.dp)
-                    
+
                     Text(
                         text = "RESEÑAS DE ALUMNOS",
                         style = typography.titleLarge.copy(fontSize = 16.sp),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
 
-            items(reviews) { review ->
-                ReviewCard(review)
+            // ← muestra spinner mientras carga, reseñas cuando ya llegaron
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()   // ruedita de carga
+                    }
+                }
+            } else {
+                items(reviews) { review ->
+                    ReviewCard(review)
+                }
             }
         }
     }
 }
-
 @Composable
 fun RatingDisplay(label: String, value: String, color: Color) {
     Column {
@@ -226,6 +253,7 @@ fun RatingDisplay(label: String, value: String, color: Color) {
         )
     }
 }
+
 
 fun getRatingColor(value: Double): Color {
     return when {

@@ -2,7 +2,7 @@ package com.example.profedex.data.model
 
 data class ProfesorFB(
     val idDoc: String = "",
-    val id: String = "",
+    val id: Any = "", // Cambiado a Any para evitar errores si en Firestore es número
     val name: String = "",
     val photo: String = "",
     val department: String = "",
@@ -12,5 +12,5 @@ data class ProfesorFB(
     val difficulty: Double = 0.0,
     val tags: List<String> = emptyList(),  // lista vacía como default
     val materia: String = "",
-    val avatarUrl: String = "",
+    val avatarUrl: String = ""
 )

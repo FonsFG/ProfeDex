@@ -1,17 +1,17 @@
 package com.example.profedex.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.profedex.data.model.Profesor
+import com.example.profedex.data.model.ProfesorFB
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class InicioViewModel : ViewModel() { //Aqui va lo de la Api
 
-    private val _profesoresRecomendados = MutableStateFlow<List<Profesor>>(emptyList())
-    val profesoresRecomendados: StateFlow<List<Profesor>> = _profesoresRecomendados
+    private val _profesoresRecomendados = MutableStateFlow<List<ProfesorFB>>(emptyList())
+    val profesoresRecomendados: StateFlow<List<ProfesorFB>> = _profesoresRecomendados
 
-    private val _profesoresPesados = MutableStateFlow<List<Profesor>>(emptyList())
-    val profesoresPesados: StateFlow<List<Profesor>> = _profesoresPesados
+    private val _profesoresPesados = MutableStateFlow<List<ProfesorFB>>(emptyList())
+    val profesoresPesados: StateFlow<List<ProfesorFB>> = _profesoresPesados
 
     init {
         cargarDatosEjemplo()
@@ -19,7 +19,7 @@ class InicioViewModel : ViewModel() { //Aqui va lo de la Api
 
     private fun cargarDatosEjemplo() {
         _profesoresRecomendados.value = listOf(
-            Profesor(
+            ProfesorFB(
                 id = "1",
                 name = "Dr. Ejemplo Recomendado",
                 photo = "foto_profesor_recomendado",
@@ -33,7 +33,7 @@ class InicioViewModel : ViewModel() { //Aqui va lo de la Api
             )
         )
         _profesoresPesados.value = listOf(
-            Profesor(
+            ProfesorFB(
                 id = "2",
                 name = "Dr. Ejemplo Pesado",
                 photo = "foto_profesor_pesado",

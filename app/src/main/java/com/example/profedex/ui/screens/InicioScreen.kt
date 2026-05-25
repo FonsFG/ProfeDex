@@ -26,11 +26,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.profedex.R
+import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.viewmodel.InicioViewModel
 
 @Composable
 fun InicioScreen(
-    onProfesorClick: () -> Unit = {},
+    onProfesorClick: (ProfesorFB) -> Unit = {},   // ← recibe el profesor elegido
     onSearchClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel()
 ) {
@@ -151,7 +152,10 @@ fun InicioScreen(
                 valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
                 etiqueta = "Promedio",
                 colorEtiqueta = colorScheme.tertiary,
-                onClick = onProfesorClick
+                // ← toma el primer profe recomendado y lo manda arriba
+                onClick = {
+                    profesoresRecomendados.firstOrNull()?.let { onProfesorClick(it) }
+                }
             )
 
             TarjetaCategoria(
@@ -163,7 +167,9 @@ fun InicioScreen(
                 valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
                 etiqueta = "Dificultad",
                 colorEtiqueta = colorScheme.error,
-                onClick = onProfesorClick
+                onClick = {
+                    profesoresPesados.firstOrNull()?.let { onProfesorClick(it) }
+                }
             )
         }
 
@@ -262,3 +268,5 @@ fun TarjetaCategoria(
         }
     }
 }
+
+

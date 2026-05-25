@@ -24,7 +24,7 @@ class ProfesorViewModel : ViewModel() {
         _profesorState.value = Profesor(
             id = "1",
             name = "Ing. Pepe Policia",
-            photo = "https://tu-url-de-imagen.com/foto.jpg",
+            photo = "https://ibb.co/Xrc1Pngx",
             department = "DIMEI",
             email = "pepe.policia@ingenieria.unam.edu",
             descripcion = "Experto en control y automatización. Sus clases son duras pero te dejan filoso para el mundo real.",
@@ -38,8 +38,8 @@ class ProfesorViewModel : ViewModel() {
     // Aquí podrías agregar más adelante una lista de reviews
     fun getReviewsDePrueba(): List<Review> {
         return listOf(
-            Review("Fonsi", "16-03-2026", 5, "Es el mejor profe de control, se aprende muchísimo."),
-            Review("Papu", "28-10-2025", 1, "Sus exámenes están rudos pero es justo.")
+            Review(alumno = "Fonsi", fecha = "16-03-2026", estrellas = 5, comentario = "Es el mejor profe de control, se aprende muchísimo."),
+            Review(alumno = "Papu", fecha = "28-10-2025", estrellas = 1, comentario = "Sus exámenes están rudos pero es justo.")
         )
     }
 }

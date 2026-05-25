@@ -5,39 +5,81 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.profedex.data.model.ProfesorFB
+import com.example.profedex.data.model.Review
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class ProfesorViewModelFB: ViewModel() {
+class ProfesorViewModelFB : ViewModel() {
+
     private val db = Firebase.firestore
+    
+    // Referencias a los listeners para poder cancelarlos y evitar fugas de memoria
+    private var profesorListener: ListenerRegistration? = null
+    private var reviewListener: ListenerRegistration? = null
 
     private val _dataProfeDex = MutableStateFlow<List<ProfesorFB>>(emptyList())
+    val dataProfeDex: StateFlow<List<ProfesorFB>> = _dataProfeDex.asStateFlow()
 
-    val dataProfeDex: StateFlow<List<ProfesorFB>> = _dataProfeDex
+    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
+    val reviews: StateFlow<List<Review>> = _reviews.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     var state by mutableStateOf(ProfesorFB())
-    private set
+        private set
 
-    fun fetchProfesorFB(){
-        db.collection("ProfeDexFB")
+    init {
+        fetchProfesorFB()
+    }
+    
+    fun seleccionarProfesor(profesor: ProfesorFB) {
+        state = profesor   // actualiza el state con el profesor que tocaron
+    }
+
+    fun fetchProfesorFB() {
+        profesorListener?.remove()
+        profesorListener = db.collection("ProfeDexFB")
             .addSnapshotListener { querySnapshot, error ->
-                if (error != null ){
-                    return@addSnapshotListener
-                }
+                if (error != null) return@addSnapshotListener
 
-                val documents = mutableListOf<ProfesorFB>()
-                if (querySnapshot !=  null){
-                    for (document in querySnapshot){
-                        val myDocument = document.toObject(ProfesorFB::class.java)
-                            .copy(idDoc = document.id)
-                        documents.add(myDocument)
-                    }
-                }
-
+                val documents = querySnapshot?.mapNotNull { document ->
+                    document.toObject(ProfesorFB::class.java).copy(idDoc = document.id)
+                } ?: emptyList()
+                
                 _dataProfeDex.value = documents
             }
     }
 
+    fun fetchReviews(idDoc: String) {
+        if (idDoc.isBlank()) {
+            _reviews.value = emptyList()
+            return
+        }
+        _isLoading.value = true
+        reviewListener?.remove()
+        reviewListener = db.collection("ProfeDexFB")
+            .document(idDoc)
+            .collection("reviews")
+            .addSnapshotListener { snapshot, error ->
+                _isLoading.value = false
+                if (error != null) return@addSnapshotListener
+
+                val lista = snapshot?.mapNotNull { doc ->
+                    doc.toObject(Review::class.java).copy(id = doc.id)
+                } ?: emptyList()
+                
+                _reviews.value = lista
+            }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        profesorListener?.remove()
+        reviewListener?.remove()
+    }
 }
