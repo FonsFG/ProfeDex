@@ -297,7 +297,6 @@ private fun ProfesorCard(
                     color = TextoPrincipal
                 )
 
-                // CORRECCIÓN AQUÍ: Tomamos el primer elemento de la lista o mostramos "Sin materia asignada"
                 Text(
                     text = profesor.materia.firstOrNull() ?: "Sin materia asignada",
                     fontSize = 13.sp,
@@ -328,44 +327,6 @@ private fun ProfesorCard(
 }
 
 @Composable
-private fun AvatarProfesor(profesor: ProfesorFB) {
-    if (profesor.photo.isNotEmpty()) {
-        AsyncImage(
-            model = profesor.photo,
-            contentDescription = "Foto de ${profesor.name}",
-            placeholder = painterResource(R.drawable.profe_placeholder),
-            error = painterResource(R.drawable.profe_placeholder),
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-    } else {
-        val inicial = profesor.name.firstOrNull()?.uppercaseChar() ?: '?'
-        val coloresAvatar = listOf(
-            Color(0xFF1565C0), Color(0xFF2E7D32), Color(0xFF6A1B9A),
-            Color(0xFFE65100), Color(0xFF00695C)
-        )
-        val colorFondo = coloresAvatar[profesor.name.length % coloresAvatar.size]
-
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(colorFondo),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = inicial.toString(),
-                color = Blanco,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
 private fun Estrellas(
     calificacion: Double,
     modifier: Modifier = Modifier,
@@ -383,7 +344,6 @@ private fun Estrellas(
         }
     }
 }
-
 @Composable
 private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
     Surface(
@@ -405,6 +365,27 @@ private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
             )
         }
     }
+}
+
+@Composable
+private fun AvatarProfesor(profesor: ProfesorFB) {
+    // Definimos esquinas casi rectas de 6.dp para el estilo pixel art
+    val formaPixelArt = RoundedCornerShape(6.dp)
+    val bordeGrisPixel = BorderStroke(1.5.dp, Color(0xFFBBBBBB))
+
+    // Llama directamente a la función que ya compila en tu otra pantalla
+    val pokemonUrl = obtenerPokemonPixelUrl(profesor.avatarUrl, profesor.idDoc)
+
+    AsyncImage(
+        model = pokemonUrl,
+        contentDescription = "Avatar de ${profesor.name}",
+        modifier = Modifier
+            .size(54.dp)
+            .border(bordeGrisPixel, formaPixelArt)
+            .clip(formaPixelArt)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+        contentScale = ContentScale.Crop
+    )
 }
 
 @Composable

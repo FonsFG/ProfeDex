@@ -3,9 +3,11 @@ package com.example.profedex.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -158,14 +160,9 @@ fun ProfesorProfileScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Text(
-                        // Juntamos todos los elementos de la lista separados por una coma y espacio
-                        text = "MATERIAS: ${professor.materia.joinToString(", ")}",
-                        style = typography.titleLarge.copy(fontSize = 14.sp),
-                        color = colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
+                    // ==========================================
+                    // 1. SECCIÓN DE TAGS (AHORA ARRIBA)
+                    // ==========================================
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -182,6 +179,41 @@ fun ProfesorProfileScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // ==========================================
+                    // 2. SECCIÓN DE MATERIAS (BARRA DESLIZABLE HORIZONTAL)
+                    // ==========================================
+                    Text(
+                        text = "MATERIAS QUE IMPARTE:",
+                        style = typography.titleLarge.copy(fontSize = 12.sp),
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+
+                    // Estado que recuerda la posición del scroll horizontal
+                    val scrollStateMaterias = rememberScrollState()
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(scrollStateMaterias)
+                            .padding(vertical = 4.dp, horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        professor.materia.forEach { clase ->
+                            AssistChip(
+                                onClick = {},
+                                label = { Text(clase, style = typography.bodyLarge.copy(fontSize = 11.sp)) },
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = colorScheme.primary.copy(alpha = 0.1f),
+                                    labelColor = colorScheme.primary
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Card(
                         colors = CardDefaults.cardColors(
@@ -250,6 +282,7 @@ fun ProfesorProfileScreen(
         }
     }
 }
+
 @Composable
 fun RatingDisplay(label: String, value: String, color: Color) {
     Column {
@@ -267,7 +300,6 @@ fun RatingDisplay(label: String, value: String, color: Color) {
     }
 }
 
-
 fun getRatingColor(value: Double): Color {
     return when {
         value <= 2 -> Color(0xFFF44336)
@@ -283,12 +315,11 @@ fun getDifficultyColor(value: Double): Color {
         else -> Color(0xFFF44336)
     }
 }
+
 /**
  * Genera una URL de arte oficial de Pokémon de forma consistente basada en el ID del profesor.
  */
 fun obtenerPokemonUrl(avatarUrl: String, profesorId: String): String {
-    // Si en Firebase le pusiste número (ej. "25"), usamos ese número.
-    // Si lo dejaste vacío, usamos el respaldo matemático por ID para que no se quede sin foto.
     val pokemonId = if (avatarUrl.isNotEmpty()) {
         avatarUrl
     } else {
