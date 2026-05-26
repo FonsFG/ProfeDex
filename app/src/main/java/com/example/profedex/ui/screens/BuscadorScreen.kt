@@ -17,8 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,15 +31,6 @@ import com.example.profedex.data.model.BuscarUiState
 import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.viewmodel.BuscarProfesoresViewModel
 
-// Colores del tema — basados en tu diseño
-private val RojoFI = Color(0xFFCC1919)
-private val Crema = Color(0xFFF5EFE6)
-private val CremaDark = Color(0xFFEDE4D8)
-private val TextoPrincipal = Color(0xFF1A1A1A)
-private val TextoSecundario = Color(0xFF666666)
-private val Blanco = Color(0xFFFFFFFF)
-private val EstrellaDor = Color(0xFFFFB800)
-
 @Composable
 fun BuscarProfesoresScreen(
     onVolverClick: () -> Unit = {},
@@ -49,9 +38,10 @@ fun BuscarProfesoresScreen(
     viewModel: BuscarProfesoresViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
-        containerColor = Crema
+        containerColor = colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -80,7 +70,7 @@ private fun LogoHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Crema)
+            .background(MaterialTheme.colorScheme.background)
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -94,10 +84,11 @@ private fun LogoHeader() {
 
 @Composable
 private fun BarraTitulo(onVolverClick: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(RojoFI)
+            .background(colorScheme.error) // Usando color de error como el rojo principal del tema
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -108,13 +99,13 @@ private fun BarraTitulo(onVolverClick: () -> Unit) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Volver",
-                tint = Blanco
+                tint = colorScheme.onError
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Buscar profesores",
-            color = Blanco,
+            color = colorScheme.onError,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -135,7 +126,7 @@ private fun ContenidoBusqueda(
         item {
             Text(
                 text = "Encuentra profesores por nombre, materia o dificultad",
-                color = TextoSecundario,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
             )
@@ -177,13 +168,14 @@ private fun BarraBusqueda(
     texto: String,
     onTextoCambia: (String) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     OutlinedTextField(
         value = texto,
         onValueChange = onTextoCambia,
         placeholder = {
             Text(
                 "Buscar profesor o materia",
-                color = TextoSecundario,
+                color = colorScheme.onSurfaceVariant,
                 fontSize = 15.sp
             )
         },
@@ -191,19 +183,20 @@ private fun BarraBusqueda(
             Icon(
                 imageVector = Icons.Filled.Search,
                 contentDescription = null,
-                tint = RojoFI
+                tint = colorScheme.error
             )
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .background(Blanco, RoundedCornerShape(50.dp)),
+            .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(50.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = RojoFI,
-            unfocusedBorderColor = Color(0xFFDDDDDD),
-            focusedContainerColor = Blanco,
-            unfocusedContainerColor = Blanco
+            focusedBorderColor = colorScheme.error,
+            unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
+            focusedContainerColor = colorScheme.surface,
+            unfocusedContainerColor = colorScheme.surface,
+            focusedTextColor = colorScheme.onSurface,
+            unfocusedTextColor = colorScheme.onSurface
         ),
         singleLine = true
     )
@@ -244,11 +237,12 @@ private fun ChipFiltro(
     activo: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50.dp),
-        color = if (activo) RojoFI else Blanco,
-        border = if (!activo) BorderStroke(1.dp, Color(0xFFCCCCCC)) else null,
+        color = if (activo) colorScheme.error else colorScheme.surface,
+        border = if (!activo) BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.3f)) else null,
         modifier = Modifier.height(34.dp)
     ) {
         Box(
@@ -257,7 +251,7 @@ private fun ChipFiltro(
         ) {
             Text(
                 text = texto,
-                color = if (activo) Blanco else TextoPrincipal,
+                color = if (activo) colorScheme.onError else colorScheme.onSurface,
                 fontSize = 13.sp,
                 fontWeight = if (activo) FontWeight.SemiBold else FontWeight.Normal
             )
@@ -270,12 +264,13 @@ private fun ProfesorCard(
     profesor: ProfesorFB,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Blanco),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = onClick
     ) {
@@ -294,12 +289,12 @@ private fun ProfesorCard(
                     text = profesor.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = TextoPrincipal
+                    color = colorScheme.onSurface
                 )
                 Text(
                     text = profesor.materia.firstOrNull() ?: "Sin materia",
                     fontSize = 13.sp,
-                    color = TextoSecundario,
+                    color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )
 
@@ -325,7 +320,6 @@ private fun ProfesorCard(
 
 @Composable
 private fun AvatarProfesor(profesor: ProfesorFB) {
-    // Usamos la misma lógica de Pixel Art que en el inicio
     val pokemonId = if (profesor.avatarUrl.isNotEmpty()) {
         profesor.avatarUrl
     } else {
@@ -341,7 +335,7 @@ private fun AvatarProfesor(profesor: ProfesorFB) {
         modifier = Modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(Color.LightGray.copy(alpha = 0.2f)),
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
         contentScale = ContentScale.Fit
     )
 }
@@ -352,13 +346,15 @@ private fun Estrellas(
     modifier: Modifier = Modifier,
     totalEstrellas: Int = 5
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val estrellaDorada = Color(0xFFFFB800)
     Row(modifier = modifier) {
         repeat(totalEstrellas) { index ->
             val llena = index < calificacion.toInt()
             Icon(
                 imageVector = if (llena) Icons.Filled.Star else Icons.Outlined.Star,
                 contentDescription = null,
-                tint = if (llena) EstrellaDor else Color(0xFFCCCCCC),
+                tint = if (llena) estrellaDorada else colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -367,9 +363,10 @@ private fun Estrellas(
 
 @Composable
 private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
+    val colorScheme = MaterialTheme.colorScheme
     Surface(
         shape = RoundedCornerShape(50.dp),
-        color = if (esDestacada) RojoFI else CremaDark,
+        color = if (esDestacada) colorScheme.error else colorScheme.secondaryContainer,
         modifier = Modifier.height(28.dp)
     ) {
         Box(
@@ -379,7 +376,7 @@ private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
             Text(
                 text = texto,
                 fontSize = 11.sp,
-                color = if (esDestacada) Blanco else TextoPrincipal,
+                color = if (esDestacada) colorScheme.onError else colorScheme.onSecondaryContainer,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -394,7 +391,7 @@ private fun PantallaCargando() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = RojoFI)
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.error)
     }
 }
 
@@ -406,7 +403,7 @@ private fun PantallaError(mensaje: String) {
     ) {
         Text(
             text = "Error: $mensaje",
-            color = RojoFI,
+            color = MaterialTheme.colorScheme.error,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
@@ -415,6 +412,7 @@ private fun PantallaError(mensaje: String) {
 
 @Composable
 private fun SinResultados() {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -428,12 +426,12 @@ private fun SinResultados() {
                 text = "Sin resultados",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextoPrincipal
+                color = colorScheme.onSurface
             )
             Text(
                 text = "Intenta con otro nombre o filtro",
                 fontSize = 14.sp,
-                color = TextoSecundario,
+                color = colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
