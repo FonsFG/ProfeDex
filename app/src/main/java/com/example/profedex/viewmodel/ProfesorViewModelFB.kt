@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfesorViewModelFB : ViewModel() {
 
     private val db = Firebase.firestore
-    
+
     private var profesorListener: ListenerRegistration? = null
     private var reviewListener: ListenerRegistration? = null
 
@@ -108,5 +108,18 @@ class ProfesorViewModelFB : ViewModel() {
         super.onCleared()
         profesorListener?.remove()
         reviewListener?.remove()
+    }
+
+    fun actualizarProfesor(
+        profesorId: String,
+        profesorActualizado: ProfesorFB,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("profesores") // Reemplaza por el nombre real de tu colección
+            .document(profesorId)
+            .set(profesorActualizado) // Al usar .set() actualiza todo el documento con las nuevas listas y promedios
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onFailure(e) }
     }
 }

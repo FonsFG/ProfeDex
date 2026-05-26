@@ -1,9 +1,12 @@
 package com.example.profedex.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -13,52 +16,45 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.viewmodel.ProfesorViewModelFB
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EvaluationScreen(
+fun EvaluarProfesorScreen(
+    professor: ProfesorFB,
     onBackClick: () -> Unit = {},
     viewModel: ProfesorViewModelFB = viewModel()
 ) {
     // ESTADOS DEL FORMULARIO
-    var nombre by remember { mutableStateOf("") }
-    var departamento by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var materiasText by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var tagsText by remember { mutableStateOf("") }
-    var rating by remember { mutableStateOf(0) }
-    var dificultad by remember { mutableStateOf(0) }
-    var pokemonNum by remember { mutableStateOf("") }
+    var puntuacionRating by remember { mutableStateOf(5) }
+    var dificultadRating by remember { mutableStateOf(3) }
+    var nuevoComentario by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
-        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { 
-                    Text(
-                        "Registrar ProfeMon", 
-                        style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.primary)
-                    ) 
+                title = {
+                    Text("Evaluar Profesor", style = typography.titleLarge.copy(fontSize = 18.sp, color = colorScheme.primary))
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
-                            contentDescription = "Atrás", 
-                            tint = colorScheme.primary
-                        )
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = colorScheme.onError)
@@ -69,132 +65,140 @@ fun EvaluationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Campos de entrada con colores del tema
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre del Profesor") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.onError,
-                    focusedLabelColor = colorScheme.onError,
-                    cursorColor = colorScheme.onError
-                )
-            )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = departamento,
-                    onValueChange = { departamento = it },
-                    label = { Text("Depto") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.onError,
-                        focusedLabelColor = colorScheme.onError
+            // ── INFO DEL PROFESOR ─────────────────────────────────
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AsyncImage(
+                        model = obtenerPokemonUrl(professor.avatarUrl, professor.idDoc),
+                        contentDescription = "Avatar de ${professor.name}",
+                        placeholder = painterResource(id = R.drawable.profe_placeholder),
+                        error = painterResource(id = R.drawable.profe_placeholder),
+                        modifier = Modifier
+                            .size(74.dp)
+                            .clip(CircleShape)
+                            .background(colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                            .border(2.dp, Color.LightGray, CircleShape),
+                        contentScale = ContentScale.Crop
                     )
-                )
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.onError,
-                        focusedLabelColor = colorScheme.onError
-                    )
-                )
-            }
 
-            OutlinedTextField(
-                value = materiasText,
-                onValueChange = { materiasText = it },
-                label = { Text("Materias (con comas)") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.onError,
-                    focusedLabelColor = colorScheme.onError
-                )
-            )
+                    Spacer(modifier = Modifier.width(16.dp))
 
-            OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth().height(100.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.onError,
-                    focusedLabelColor = colorScheme.onError
-                )
-            )
-
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text("Calificación:", style = typography.labelLarge, color = colorScheme.onSurface)
-                    RatingBar(currentRating = rating, onRatingChanged = { rating = it })
-                }
-                Column {
-                    Text("Dificultad:", style = typography.labelLarge, color = colorScheme.onSurface)
-                    RatingBar(currentRating = dificultad, onRatingChanged = { dificultad = it })
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = professor.name,
+                            style = typography.titleLarge.copy(fontSize = 16.sp),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = professor.department,
+                            style = typography.bodyLarge.copy(fontSize = 12.sp, color = Color.Gray)
+                        )
+                    }
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = tagsText,
-                    onValueChange = { tagsText = it },
-                    label = { Text("Tags") },
-                    modifier = Modifier.weight(1.5f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.onError,
-                        focusedLabelColor = colorScheme.onError
-                    )
+            HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
+
+            // ── PUNTUACIÓN (listaRating) ──────────────────────────
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "PUNTUACIÓN GENERAL",
+                    style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                    color = colorScheme.primary
+                )
+                Text(
+                    text = "¿Qué tan buen profesor es?",
+                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = Color.Gray),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                RatingBar(currentRating = puntuacionRating, onRatingChanged = { puntuacionRating = it })
+            }
+
+            // ── DIFICULTAD (listaDifficulty) ──────────────────────
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "NIVEL DE DIFICULTAD",
+                    style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                    color = colorScheme.primary
+                )
+                Text(
+                    text = "¿Qué tan pesado es pasar o aprender con él?",
+                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = Color.Gray),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                RatingBar(currentRating = dificultadRating, onRatingChanged = { dificultadRating = it })
+            }
+
+            // ── COMENTARIO (listaComment) ─────────────────────────
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "TU COMENTARIO",
+                    style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                    color = colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
-                    value = pokemonNum,
-                    onValueChange = { if(it.length <= 3) pokemonNum = it },
-                    label = { Text("N° Poke") },
-                    modifier = Modifier.weight(1f),
+                    value = nuevoComentario,
+                    onValueChange = { nuevoComentario = it },
+                    label = { Text("Cuéntale a la FI tu experiencia...") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.onError,
-                        focusedLabelColor = colorScheme.onError
+                        focusedBorderColor = colorScheme.primary,
+                        unfocusedBorderColor = Color.LightGray
                     )
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
+            // ── BOTÓN PUBLICAR EVALUACIÓN ─────────────────────────
             Button(
                 onClick = {
-                    if (nombre.isBlank() || materiasText.isBlank()) {
-                        Toast.makeText(context, "Mínimo pon el nombre y materias", Toast.LENGTH_SHORT).show()
+                    if (nuevoComentario.isBlank()) {
+                        Toast.makeText(context, "Por favor deja un comentario", Toast.LENGTH_SHORT).show()
                     } else {
-                        val nuevoProfe = ProfesorFB(
-                            name = nombre,
-                            department = departamento,
-                            email = email,
-                            descripcion = descripcion,
-                            averageRating = rating.toDouble(),
-                            difficulty = dificultad.toDouble(),
-                            avatarUrl = pokemonNum,
-                            materia = materiasText.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                            tags = tagsText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                        // 1. Clonamos y actualizamos los arreglos sumando la nueva review
+                        val nuevaListaRating = professor.listaRating.toMutableList().apply { add(puntuacionRating.toInt()) }
+                        val nuevaListaDifficulty = professor.listaDifficulty.toMutableList().apply { add(dificultadRating.toInt()) }
+                        val nuevaListaComment = professor.listaComment.toMutableList().apply { add(nuevoComentario) }
+
+                        // 2. Calculamos los nuevos promedios matemáticos
+                        val nuevoAverageRating = nuevaListaRating.average()
+                        val nuevoDifficulty = nuevaListaDifficulty.average()
+
+                        // 3. Empaquetamos todo de vuelta al objeto ProfesorFB con los datos actualizados
+                        val profesorActualizado = professor.copy(
+                            averageRating = nuevoAverageRating,
+                            difficulty = nuevoDifficulty,
+                            listaRating = nuevaListaRating,
+                            listaDifficulty = nuevaListaDifficulty,
+                            listaComment = nuevaListaComment
                         )
 
-                        viewModel.guardarNuevoProfesor(
-                            nuevoProfe = nuevoProfe,
+                        // 4. Mandamos al ViewModel para que actualice el documento en Firebase
+                        viewModel.actualizarProfesor(
+                            profesorId = professor.idDoc,
+                            profesorActualizado = profesorActualizado,
                             onSuccess = {
-                                Toast.makeText(context, "¡ProfeMon registrado! 🚀", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "¡Evaluación publicada y promedio actualizado! 🚀", Toast.LENGTH_LONG).show()
                                 onBackClick()
                             },
                             onFailure = { e ->
@@ -203,31 +207,17 @@ fun EvaluationScreen(
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.onError,
-                    contentColor = colorScheme.primary
-                )
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error)
             ) {
-                Text("REGISTRAR EN PROFEDEX", style = typography.titleLarge.copy(fontSize = 16.sp))
+                Text(
+                    text = "PUBLICAR EVALUACIÓN",
+                    style = typography.titleLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                )
             }
-        }
-    }
-}
-
-@Composable
-fun RatingBar(currentRating: Int, onRatingChanged: (Int) -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-    val estrellaDorada = Color(0xFFFFB800)
-    Row {
-        for (i in 1..5) {
-            Icon(
-                imageVector = Icons.Filled.Star,
-                contentDescription = null,
-                tint = if (i <= currentRating) estrellaDorada else colorScheme.outline.copy(alpha = 0.5f),
-                modifier = Modifier.clickable { onRatingChanged(i) }.size(28.dp)
-            )
         }
     }
 }
