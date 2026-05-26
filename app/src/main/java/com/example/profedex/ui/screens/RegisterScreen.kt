@@ -31,11 +31,11 @@ fun EvaluationScreen(
     var nombre by remember { mutableStateOf("") }
     var departamento by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var materiasText by remember { mutableStateOf("") } // Ingresadas por coma
+    var materiasText by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
-    var tagsText by remember { mutableStateOf("") } // Ingresadas por coma
-    var rating by remember { mutableStateOf(0) }
-    var dificultad by remember { mutableStateOf(0) }
+    var tagsText by remember { mutableStateOf("") }
+    var rating by remember { mutableIntStateOf(0) }
+    var dificultad by remember { mutableIntStateOf(0) }
     var pokemonNum by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -43,6 +43,7 @@ fun EvaluationScreen(
     val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { 
@@ -65,86 +66,120 @@ fun EvaluationScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 1. NOMBRE
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
                 label = { Text("Nombre del Profesor") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorScheme.error,
+                    focusedLabelColor = colorScheme.error,
+                    cursorColor = colorScheme.error,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedTextColor = colorScheme.onSurface
+                )
             )
 
-            // 2. DEPARTAMENTO Y EMAIL
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = departamento,
                     onValueChange = { departamento = it },
-                    label = { Text("Depto (ej. DIMEI)") },
+                    label = { Text("Depto") },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colorScheme.error,
+                        focusedLabelColor = colorScheme.error,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedTextColor = colorScheme.onSurface
+                    )
                 )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colorScheme.error,
+                        focusedLabelColor = colorScheme.error,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedTextColor = colorScheme.onSurface
+                    )
                 )
             }
 
-            // 3. MATERIAS
             OutlinedTextField(
                 value = materiasText,
                 onValueChange = { materiasText = it },
-                label = { Text("Materias (separa con comas)") },
-                placeholder = { Text("Cálculo, Álgebra...") },
+                label = { Text("Materias (con comas)") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorScheme.error,
+                    focusedLabelColor = colorScheme.error,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedTextColor = colorScheme.onSurface
+                )
             )
 
-            // 4. DESCRIPCIÓN
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
-                label = { Text("Descripción / Reseña") },
+                label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth().height(100.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorScheme.error,
+                    focusedLabelColor = colorScheme.error,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedTextColor = colorScheme.onSurface
+                )
             )
 
-            // 5. CALIFICACIONES (ESTRELLAS)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text("Calificación:", style = typography.labelLarge)
-                    RatingBar(currentRating = rating, onRatingChanged = { rating = it })
+                    Text("Calificación:", style = typography.labelLarge, color = colorScheme.onSurface)
+                    RatingBarRegistro(currentRating = rating, onRatingChanged = { rating = it })
                 }
                 Column {
-                    Text("Dificultad:", style = typography.labelLarge)
-                    RatingBar(currentRating = dificultad, onRatingChanged = { dificultad = it })
+                    Text("Dificultad:", style = typography.labelLarge, color = colorScheme.onSurface)
+                    RatingBarRegistro(currentRating = dificultad, onRatingChanged = { dificultad = it })
                 }
             }
 
-            // 6. TAGS Y POKEMON
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
                     value = tagsText,
                     onValueChange = { tagsText = it },
-                    label = { Text("Tags (comas)") },
+                    label = { Text("Tags") },
                     modifier = Modifier.weight(1.5f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colorScheme.error,
+                        focusedLabelColor = colorScheme.error,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedTextColor = colorScheme.onSurface
+                    )
                 )
                 OutlinedTextField(
                     value = pokemonNum,
                     onValueChange = { if(it.length <= 3) pokemonNum = it },
-                    label = { Text("N° Pokemon") },
-                    placeholder = { Text("1-151") },
+                    label = { Text("N° Poke") },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = colorScheme.error,
+                        focusedLabelColor = colorScheme.error,
+                        unfocusedTextColor = colorScheme.onSurface,
+                        focusedTextColor = colorScheme.onSurface
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // BOTÓN DE GUARDAR
             Button(
                 onClick = {
                     if (nombre.isBlank() || materiasText.isBlank()) {
@@ -176,22 +211,27 @@ fun EvaluationScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.onError,
+                    contentColor = colorScheme.primary
+                )
             ) {
-                Text("REGISTRAR EN PROFEDEX", style = typography.titleLarge.copy(fontSize = 16.sp, color = Color.White))
+                Text("REGISTRAR EN PROFEDEX", style = typography.titleLarge.copy(fontSize = 16.sp))
             }
         }
     }
 }
 
 @Composable
-fun RatingBar(currentRating: Int, onRatingChanged: (Int) -> Unit) {
+fun RatingBarRegistro(currentRating: Int, onRatingChanged: (Int) -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
+    val estrellaDorada = Color(0xFFFFB800)
     Row {
         for (i in 1..5) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
-                tint = if (i <= currentRating) Color(0xFFFFD700) else Color.LightGray,
+                tint = if (i <= currentRating) estrellaDorada else colorScheme.outline.copy(alpha = 0.3f),
                 modifier = Modifier.clickable { onRatingChanged(i) }.size(28.dp)
             )
         }

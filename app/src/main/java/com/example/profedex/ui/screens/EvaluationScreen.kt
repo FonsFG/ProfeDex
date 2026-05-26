@@ -37,9 +37,8 @@ fun EvaluarProfesorScreen(
     onBackClick: () -> Unit = {},
     viewModel: ProfesorViewModelFB = viewModel()
 ) {
-    // ESTADOS DEL FORMULARIO
-    var puntuacionRating by remember { mutableStateOf(5) }
-    var dificultadRating by remember { mutableStateOf(3) }
+    var puntuacionRating by remember { mutableIntStateOf(5) }
+    var dificultadRating by remember { mutableIntStateOf(3) }
     var nuevoComentario by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -47,6 +46,7 @@ fun EvaluarProfesorScreen(
     val colorScheme = MaterialTheme.colorScheme
 
     Scaffold(
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -92,7 +92,7 @@ fun EvaluarProfesorScreen(
                             .size(74.dp)
                             .clip(CircleShape)
                             .background(colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                            .border(2.dp, Color.LightGray, CircleShape),
+                            .border(2.dp, colorScheme.outline.copy(alpha = 0.2f), CircleShape),
                         contentScale = ContentScale.Crop
                     )
 
@@ -102,54 +102,55 @@ fun EvaluarProfesorScreen(
                         Text(
                             text = professor.name,
                             style = typography.titleLarge.copy(fontSize = 16.sp),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onSurface
                         )
                         Text(
                             text = professor.department,
-                            style = typography.bodyLarge.copy(fontSize = 12.sp, color = Color.Gray)
+                            style = typography.bodyLarge.copy(fontSize = 12.sp, color = colorScheme.onSurfaceVariant)
                         )
                     }
                 }
             }
 
-            HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray)
+            HorizontalDivider(thickness = 0.5.dp, color = colorScheme.outline.copy(alpha = 0.2f))
 
-            // ── PUNTUACIÓN (listaRating) ──────────────────────────
+            // ── PUNTUACIÓN ──────────────────────────
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "PUNTUACIÓN GENERAL",
                     style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
-                    color = colorScheme.primary
+                    color = colorScheme.error
                 )
                 Text(
                     text = "¿Qué tan buen profesor es?",
-                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = Color.Gray),
+                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = colorScheme.onSurfaceVariant),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                RatingBar(currentRating = puntuacionRating, onRatingChanged = { puntuacionRating = it })
+                RatingBarProfesor(currentRating = puntuacionRating, onRatingChanged = { puntuacionRating = it })
             }
 
-            // ── DIFICULTAD (listaDifficulty) ──────────────────────
+            // ── DIFICULTAD ──────────────────────
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "NIVEL DE DIFICULTAD",
                     style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
-                    color = colorScheme.primary
+                    color = colorScheme.error
                 )
                 Text(
                     text = "¿Qué tan pesado es pasar o aprender con él?",
-                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = Color.Gray),
+                    style = typography.bodyMedium.copy(fontSize = 11.sp, color = colorScheme.onSurfaceVariant),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                RatingBar(currentRating = dificultadRating, onRatingChanged = { dificultadRating = it })
+                RatingBarProfesor(currentRating = dificultadRating, onRatingChanged = { dificultadRating = it })
             }
 
-            // ── COMENTARIO (listaComment) ─────────────────────────
+            // ── COMENTARIO ─────────────────────────
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "TU COMENTARIO",
                     style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
-                    color = colorScheme.primary,
+                    color = colorScheme.error,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
@@ -161,8 +162,10 @@ fun EvaluarProfesorScreen(
                         .height(140.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        unfocusedBorderColor = Color.LightGray
+                        focusedBorderColor = colorScheme.error,
+                        unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
+                        focusedLabelColor = colorScheme.error,
+                        cursorColor = colorScheme.error
                     )
                 )
             }
@@ -175,16 +178,13 @@ fun EvaluarProfesorScreen(
                     if (nuevoComentario.isBlank()) {
                         Toast.makeText(context, "Por favor deja un comentario", Toast.LENGTH_SHORT).show()
                     } else {
-                        // 1. Clonamos y actualizamos los arreglos sumando la nueva review
-                        val nuevaListaRating = professor.listaRating.toMutableList().apply { add(puntuacionRating.toInt()) }
-                        val nuevaListaDifficulty = professor.listaDifficulty.toMutableList().apply { add(dificultadRating.toInt()) }
+                        val nuevaListaRating = professor.listaRating.toMutableList().apply { add(puntuacionRating) }
+                        val nuevaListaDifficulty = professor.listaDifficulty.toMutableList().apply { add(dificultadRating) }
                         val nuevaListaComment = professor.listaComment.toMutableList().apply { add(nuevoComentario) }
 
-                        // 2. Calculamos los nuevos promedios matemáticos
                         val nuevoAverageRating = nuevaListaRating.average()
                         val nuevoDifficulty = nuevaListaDifficulty.average()
 
-                        // 3. Empaquetamos todo de vuelta al objeto ProfesorFB con los datos actualizados
                         val profesorActualizado = professor.copy(
                             averageRating = nuevoAverageRating,
                             difficulty = nuevoDifficulty,
@@ -193,12 +193,11 @@ fun EvaluarProfesorScreen(
                             listaComment = nuevaListaComment
                         )
 
-                        // 4. Mandamos al ViewModel para que actualice el documento en Firebase
                         viewModel.actualizarProfesor(
                             profesorId = professor.idDoc,
                             profesorActualizado = profesorActualizado,
                             onSuccess = {
-                                Toast.makeText(context, "¡Evaluación publicada y promedio actualizado! 🚀", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "¡Evaluación publicada! 🚀", Toast.LENGTH_LONG).show()
                                 onBackClick()
                             },
                             onFailure = { e ->
@@ -211,13 +210,35 @@ fun EvaluarProfesorScreen(
                     .fillMaxWidth()
                     .height(54.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.onError,
+                    contentColor = colorScheme.primary
+                )
             ) {
                 Text(
                     text = "PUBLICAR EVALUACIÓN",
-                    style = typography.titleLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    style = typography.titleLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun RatingBarProfesor(currentRating: Int, onRatingChanged: (Int) -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
+    val estrellaDorada = Color(0xFFFFB800)
+    Row {
+        for (i in 1..5) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = null,
+                tint = if (i <= currentRating) estrellaDorada else colorScheme.outline.copy(alpha = 0.3f),
+                modifier = Modifier
+                    .clickable { onRatingChanged(i) }
+                    .padding(4.dp)
+                    .size(32.dp)
+            )
         }
     }
 }
