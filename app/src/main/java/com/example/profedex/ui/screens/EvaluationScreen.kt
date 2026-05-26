@@ -169,29 +169,47 @@ fun EvaluarProfesorScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ── DENTRO DEL BOTÓN PUBLICAR EVALUACIÓN EN EvaluarProfesorScreen ─────────────────
+            // ── BOTÓN PUBLICAR EVALUACIÓN ─────────────────────────
             Button(
                 onClick = {
                     if (nuevoComentario.isBlank()) {
                         Toast.makeText(context, "Por favor deja un comentario", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Llamamos directamente a la función optimizada del ViewModel
+                        // 1. Clonamos y actualizamos los arreglos sumando la nueva review
+                        val nuevaListaRating = professor.listaRating.toMutableList().apply { add(puntuacionRating.toInt()) }
+                        val nuevaListaDifficulty = professor.listaDifficulty.toMutableList().apply { add(dificultadRating.toInt()) }
+                        val nuevaListaComment = professor.listaComment.toMutableList().apply { add(nuevoComentario) }
+
+                        // 2. Calculamos los nuevos promedios matemáticos
+                        val nuevoAverageRating = nuevaListaRating.average()
+                        val nuevoDifficulty = nuevaListaDifficulty.average()
+
+                        // 3. Empaquetamos todo de vuelta al objeto ProfesorFB con los datos actualizados
+                        val profesorActualizado = professor.copy(
+                            averageRating = nuevoAverageRating,
+                            difficulty = nuevoDifficulty,
+                            listaRating = nuevaListaRating,
+                            listaDifficulty = nuevaListaDifficulty,
+                            listaComment = nuevaListaComment
+                        )
+
+                        // 4. Mandamos al ViewModel para que actualice el documento en Firebase
                         viewModel.actualizarProfesor(
                             profesorId = professor.idDoc,
-                            puntuacionNueva = puntuacionRating,
-                            dificultadNueva = dificultadRating,
-                            comentarioNuevo = nuevoComentario,
+                            profesorActualizado = profesorActualizado,
                             onSuccess = {
-                                Toast.makeText(context, "¡Evaluación publicada y promedio actualizado!", Toast.LENGTH_LONG).show()
-                                onBackClick() // Regresa al perfil del profesor
+                                Toast.makeText(context, "¡Evaluación publicada y promedio actualizado! 🚀", Toast.LENGTH_LONG).show()
+                                onBackClick()
                             },
                             onFailure = { e ->
-                                Toast.makeText(context, "Error al guardar en Firebase: ${e.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(54.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error)
             ) {
