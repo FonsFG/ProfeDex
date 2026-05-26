@@ -51,13 +51,13 @@ fun PerfilUsuarioScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colorScheme.onError) // Cambio de primary a onError
+                .background(colorScheme.error)
                 .padding(vertical = 24.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "MI PERFIL",
-                color = colorScheme.primary, // Ajuste para visibilidad sobre blanco
+                color = colorScheme.primary,
                 style = typography.titleLarge.copy(fontSize = 24.sp)
             )
         }
@@ -89,7 +89,7 @@ fun PerfilUsuarioScreen(
                 if (modoEdicion) {
                     Text(
                         text = "Selecciona un avatar", 
-                        style = typography.bodyLarge.copy(fontSize = 12.sp),
+                        style = typography.bodyLarge.copy(fontSize = 12.sp, color = colorScheme.onSurface),
                         modifier = Modifier.padding(top = 8.dp)
                     )
                     Row(
@@ -104,7 +104,7 @@ fun PerfilUsuarioScreen(
                                     .size(45.dp)
                                     .clip(CircleShape)
                                     .clickable { viewModel.actualizarAvatar(index) }
-                                    .background(if (usuario.avatar == index) colorScheme.onError else Color.Transparent), // Cambio de primary a onError
+                                    .background(if (usuario.avatar == index) colorScheme.error else Color.Transparent),
                                 contentScale = ContentScale.Crop
                             )
                         }
@@ -134,8 +134,8 @@ fun PerfilUsuarioScreen(
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (modoEdicion) colorScheme.tertiary else colorScheme.onError, // Cambio de primary a onError
-                        contentColor = if (modoEdicion) colorScheme.onTertiary else colorScheme.primary // Ajuste contraste
+                        containerColor = if (modoEdicion) colorScheme.tertiary else colorScheme.error,
+                        contentColor = if (modoEdicion) colorScheme.onTertiary else colorScheme.primary
                     )
                 ) {
                     Text(
@@ -147,7 +147,7 @@ fun PerfilUsuarioScreen(
                 if (mensajeGuardado && !modoEdicion) {
                     Text(
                         "¡Cambios guardados con éxito! ✅",
-                        color = colorScheme.onError, // Cambio de primary a onError (podría ser invisible sobre blanco)
+                        color = colorScheme.error,
                         style = typography.bodyLarge.copy(fontSize = 12.sp),
                         modifier = Modifier.padding(top = 12.dp)
                     )
@@ -161,10 +161,11 @@ fun PerfilUsuarioScreen(
 
 @Composable
 fun PerfilField(label: String, value: String, enabled: Boolean, onValueChange: (String) -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text(
             text = label, 
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp, color = MaterialTheme.colorScheme.onError) // Cambio de primary a onError
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp, color = colorScheme.error)
         )
         OutlinedTextField(
             value = value,
@@ -174,9 +175,12 @@ fun PerfilField(label: String, value: String, enabled: Boolean, onValueChange: (
             textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                focusedBorderColor = MaterialTheme.colorScheme.onError // Cambio de primary a onError
+                disabledTextColor = colorScheme.onSurface,
+                disabledBorderColor = colorScheme.outline.copy(alpha = 0.2f),
+                focusedBorderColor = colorScheme.error,
+                focusedLabelColor = colorScheme.error,
+                unfocusedTextColor = colorScheme.onSurface,
+                focusedTextColor = colorScheme.onSurface
             )
         )
     }
