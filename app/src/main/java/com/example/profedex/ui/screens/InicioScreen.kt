@@ -35,6 +35,10 @@ fun InicioScreen(
 ) {
     val profesoresRecomendados by viewModel.profesoresRecomendados.collectAsStateWithLifecycle()
     val profesoresPesados by viewModel.profesoresPesados.collectAsStateWithLifecycle()
+    
+    // Estado para saber qué lista mostrar (null = ninguna, "recomendados" o "pesados")
+    var categoriaSeleccionada by remember { mutableStateOf<String?>(null) }
+    
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
@@ -44,9 +48,9 @@ fun InicioScreen(
             .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── HEADER (Rojo con letras Blancas) ────────────────────────
+        // ── HEADER ────────────────────────
         Surface(
-            color = colorScheme.error, // Fondo Rojo
+            color = colorScheme.error,
             shadowElevation = 4.dp
         ) {
             Row(
@@ -64,7 +68,7 @@ fun InicioScreen(
                 Column {
                     Text(
                         text = "PROFEDEX",
-                        color = colorScheme.onError, // Letras Blancas
+                        color = colorScheme.onError,
                         style = typography.titleLarge.copy(fontSize = 22.sp, letterSpacing = 1.sp)
                     )
                     Text(
@@ -130,32 +134,135 @@ fun InicioScreen(
             }
         }
 
-        // ── SECCIONES ──────────────────────
-        SectionHeader("PROFES MÁS RECOMENDADOS", colorScheme.tertiary)
-        profesoresRecomendados.forEach { profesor ->
-            ProfesorCardInicio(
-                profesor = profesor,
-                colorEtiqueta = colorScheme.tertiary,
+        // ── TARJETAS DE CATEGORÍA (LOS CUADRITOS) ──────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TarjetaCategoria(
+                modifier = Modifier.weight(1f),
+                icono = R.drawable.estrella_recomendado,
+                titulo = "PROFES MÁS RECOMENDADOS",
+                descripcion = "Los mejores evaluados.",
+                valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
                 etiqueta = "Promedio",
-                valor = profesor.averageRating,
-                onClick = { onProfesorClick(profesor) }
+                colorEtiqueta = colorScheme.tertiary,
+                seleccionada = categoriaSeleccionada == "recomendados",
+                onClick = { 
+                    categoriaSeleccionada = if (categoriaSeleccionada == "recomendados") null else "recomendados"
+                }
+            )
+
+            TarjetaCategoria(
+                modifier = Modifier.weight(1f),
+                icono = R.drawable.logo_norecomendado,
+                titulo = "PROFES PESADOS",
+                descripcion = "Alto nivel de exigencia.",
+                valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
+                etiqueta = "Dificultad",
+                colorEtiqueta = colorScheme.error,
+                seleccionada = categoriaSeleccionada == "pesados",
+                onClick = { 
+                    categoriaSeleccionada = if (categoriaSeleccionada == "pesados") null else "pesados"
+                }
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        SectionHeader("PROFES PESADOS", colorScheme.error)
-        profesoresPesados.forEach { profesor ->
-            ProfesorCardInicio(
-                profesor = profesor,
-                colorEtiqueta = colorScheme.error,
-                etiqueta = "Dificultad",
-                valor = profesor.difficulty,
-                onClick = { onProfesorClick(profesor) }
-            )
+        // ── LISTA DINÁMICA (APARECE AL CLICKEAR UN CUADRITO) ────────
+        when (categoriaSeleccionada) {
+            "recomendados" -> {
+                SectionHeader("LISTADO: RECOMENDADOS", colorScheme.tertiary)
+                if (profesoresRecomendados.isEmpty()) {
+                    Text("No hay profesores recomendados", modifier = Modifier.padding(16.dp))
+                } else {
+                    profesoresRecomendados.forEach { profesor ->
+                        ProfesorCardInicio(
+                            profesor = profesor,
+                            colorEtiqueta = colorScheme.tertiary,
+                            etiqueta = "Promedio",
+                            valor = profesor.averageRating,
+                            onClick = { onProfesorClick(profesor) }
+                        )
+                    }
+                }
+            }
+            "pesados" -> {
+                SectionHeader("LISTADO: PESADOS", colorScheme.error)
+                if (profesoresPesados.isEmpty()) {
+                    Text("No hay profesores pesados", modifier = Modifier.padding(16.dp))
+                } else {
+                    profesoresPesados.forEach { profesor ->
+                        ProfesorCardInicio(
+                            profesor = profesor,
+                            colorEtiqueta = colorScheme.error,
+                            etiqueta = "Dificultad",
+                            valor = profesor.difficulty,
+                            onClick = { onProfesorClick(profesor) }
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+fun TarjetaCategoria(
+    modifier: Modifier = Modifier,
+    icono: Int,
+    titulo: String,
+    descripcion: String,
+    valoracion: Double,
+    etiqueta: String,
+    colorEtiqueta: Color,
+    seleccionada: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    
+    ElevatedCard(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        onClick = onClick,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (seleccionada) colorEtiqueta.copy(alpha = 0.1f) else colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(if (seleccionada) 8.dp else 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = icono),
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
+                minLines = 2
+            )
+            Text(
+                text = descripcion,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 10.sp, color = Color.Gray),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "%.1f %s".format(valoracion, etiqueta),
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = colorEtiqueta)
+            )
+        }
     }
 }
 
