@@ -28,20 +28,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
+import com.example.profedex.viewmodel.IAViewModel
 import com.example.profedex.viewmodel.ProfesorViewModelFB
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluarProfesorScreen(
     professor: ProfesorFB,
     onBackClick: () -> Unit = {},
-    viewModel: ProfesorViewModelFB = viewModel()
+    viewModel: ProfesorViewModelFB = viewModel(),
+    iaViewModel: IAViewModel = viewModel()
 ) {
     var puntuacionRating by remember { mutableIntStateOf(5) }
     var dificultadRating by remember { mutableIntStateOf(3) }
     var nuevoComentario by remember { mutableStateOf("") }
+    var moderando by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
 
@@ -177,17 +182,30 @@ fun EvaluarProfesorScreen(
                 onClick = {
                     if (nuevoComentario.isBlank()) {
                         Toast.makeText(context, "Por favor deja un comentario", Toast.LENGTH_SHORT).show()
-                    } else {
+                        return@Button
+                    }
+                    // Moderación con IA antes de publicar
+                    scope.launch {
+                        moderando = true
+                        val resultado = iaViewModel.moderarComentario(nuevoComentario, professor.name)
+                        moderando = false
+
+                        if (!resultado.aprobado) {
+                            Toast.makeText(
+                                context,
+                                "Comentario bloqueado: ${resultado.razon.ifBlank { "lenguaje no permitido" }}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@launch
+                        }
+
                         val nuevaListaRating = professor.listaRating.toMutableList().apply { add(puntuacionRating) }
                         val nuevaListaDifficulty = professor.listaDifficulty.toMutableList().apply { add(dificultadRating) }
                         val nuevaListaComment = professor.listaComment.toMutableList().apply { add(nuevoComentario) }
 
-                        val nuevoAverageRating = nuevaListaRating.average()
-                        val nuevoDifficulty = nuevaListaDifficulty.average()
-
                         val profesorActualizado = professor.copy(
-                            averageRating = nuevoAverageRating,
-                            difficulty = nuevoDifficulty,
+                            averageRating = nuevaListaRating.average(),
+                            difficulty = nuevaListaDifficulty.average(),
                             listaRating = nuevaListaRating,
                             listaDifficulty = nuevaListaDifficulty,
                             listaComment = nuevaListaComment
@@ -206,6 +224,7 @@ fun EvaluarProfesorScreen(
                         )
                     }
                 },
+                enabled = !moderando,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
@@ -215,10 +234,18 @@ fun EvaluarProfesorScreen(
                     contentColor = colorScheme.primary
                 )
             ) {
-                Text(
-                    text = "PUBLICAR EVALUACIÓN",
-                    style = typography.titleLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                )
+                if (moderando) {
+                    CircularProgressIndicator(
+                        color = colorScheme.primary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    Text(
+                        text = "PUBLICAR EVALUACIÓN",
+                        style = typography.titleLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     }

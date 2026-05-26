@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
 import com.example.profedex.ui.screens.BuscarProfesoresScreen
+import com.example.profedex.ui.screens.ChatBotScreen
 import com.example.profedex.ui.screens.EvaluationScreen
 import com.example.profedex.ui.screens.EvaluarProfesorScreen // ← Tu nueva pantalla de evaluación
 import com.example.profedex.ui.screens.InicioScreen
@@ -32,6 +33,7 @@ object Rutas {
     const val BUSCADOR = "buscador"
     const val REGISTRO = "registro"
     const val EVALUAR = "evaluar"     // ← Nueva ruta exclusiva para calificar profesores
+    const val CHATBOT = "chatbot"     // ← Asistente IA
 }
 
 data class ItemNavBar(
@@ -61,7 +63,8 @@ fun InicioApp() {
     val mostrarBottomBar = rutaActual != Rutas.LOGIN &&
             rutaActual != Rutas.BUSCADOR &&
             rutaActual != Rutas.REGISTRO &&
-            rutaActual != Rutas.EVALUAR
+            rutaActual != Rutas.EVALUAR &&
+            rutaActual != Rutas.CHATBOT
 
     Scaffold(
         bottomBar = {
@@ -148,7 +151,17 @@ fun InicioApp() {
                     },
                     onSearchClick = {
                         navController.navigate(Rutas.BUSCADOR)
+                    },
+                    onChatClick = {
+                        navController.navigate(Rutas.CHATBOT)
                     }
+                )
+            }
+
+            composable(Rutas.CHATBOT) {
+                ChatBotScreen(
+                    onBackClick = { navController.popBackStack() },
+                    profesorViewModel = profesorViewModel
                 )
             }
 

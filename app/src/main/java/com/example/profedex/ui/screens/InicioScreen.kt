@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +32,7 @@ import com.example.profedex.viewmodel.InicioViewModel
 fun InicioScreen(
     onProfesorClick: (ProfesorFB) -> Unit = {},
     onSearchClick: () -> Unit = {},
+    onChatClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel()
 ) {
     val profesoresRecomendados by viewModel.profesoresRecomendados.collectAsStateWithLifecycle()
@@ -40,6 +43,7 @@ fun InicioScreen(
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -206,6 +210,22 @@ fun InicioScreen(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+    }
+
+        // ── FAB CHATBOT IA ──────────────────────────────
+        FloatingActionButton(
+            onClick = onChatClick,
+            containerColor = colorScheme.onError,
+            contentColor = colorScheme.primary,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AutoAwesome,
+                contentDescription = "Asistente IA"
+            )
+        }
     }
 }
 

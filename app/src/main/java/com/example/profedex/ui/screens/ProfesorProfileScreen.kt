@@ -11,8 +11,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +30,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.profedex.ui.components.ReviewCard
+import com.example.profedex.viewmodel.IAViewModel
 import com.example.profedex.viewmodel.ProfesorViewModelFB
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,10 +41,19 @@ fun ProfesorProfileScreen(
     professor: ProfesorFB,
     viewModel: ProfesorViewModelFB,
     onBackClick: () -> Unit,
-    onEvaluarClick: () -> Unit
+    onEvaluarClick: () -> Unit,
+    iaViewModel: IAViewModel = viewModel()
 ) {
     val comentarios = professor.listaComment
     val ratings = professor.listaRating
+
+    val resumen by iaViewModel.resumen.collectAsState()
+    val resumenCargando by iaViewModel.resumenCargando.collectAsState()
+
+    // Limpia el resumen al salir/cambiar de profesor
+    DisposableEffect(professor.idDoc) {
+        onDispose { iaViewModel.limpiarResumen() }
+    }
 
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
@@ -236,6 +251,76 @@ fun ProfesorProfileScreen(
                         textAlign = TextAlign.Start,
                         color = colorScheme.onSurface
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // ── BOTÓN RESUMEN CON IA ─────────────────────────
+                    if (comentarios.isNotEmpty()) {
+                        OutlinedButton(
+                            onClick = { iaViewModel.resumirReseñas(comentarios) },
+                            enabled = !resumenCargando,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = colorScheme.onError
+                            )
+                        ) {
+                            if (resumenCargando) {
+                                CircularProgressIndicator(
+                                    color = colorScheme.onError,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Generando resumen…", style = typography.bodyLarge.copy(fontSize = 13.sp))
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = if (resumen == null) "RESUMIR RESEÑAS CON IA" else "REGENERAR RESUMEN",
+                                    style = typography.titleLarge.copy(fontSize = 13.sp)
+                                )
+                            }
+                        }
+                    }
+
+                    resumen?.let { textoResumen ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                            ),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Filled.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "RESUMEN GENERADO POR IA",
+                                        style = typography.titleLarge.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold),
+                                        color = colorScheme.onSecondaryContainer
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = textoResumen,
+                                    style = typography.bodyLarge.copy(fontSize = 13.sp),
+                                    color = colorScheme.onSecondaryContainer
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }

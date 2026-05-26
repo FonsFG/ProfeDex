@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.firebase.ai)
     implementation(libs.firebase.firestore)
 
     testImplementation(libs.junit)
