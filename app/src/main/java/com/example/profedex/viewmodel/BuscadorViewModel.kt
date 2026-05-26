@@ -35,7 +35,15 @@ class BuscarProfesoresViewModel : ViewModel() {
                 }
 
                 todosProfesores = snapshot?.mapNotNull { doc ->
-                    doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
+                    try {
+                        doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
+                    } catch (e: Exception) {
+                        android.util.Log.w(
+                            "BuscadorViewModel",
+                            "Doc ${doc.id} malformado y omitido: ${e.message}"
+                        )
+                        null
+                    }
                 } ?: emptyList()
 
                 // Mantenemos los valores actuales al actualizar tras un cambio en Firebase

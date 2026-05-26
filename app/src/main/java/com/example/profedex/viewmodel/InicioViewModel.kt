@@ -27,7 +27,15 @@ class InicioViewModel : ViewModel() {
                 if (error != null) return@addSnapshotListener
 
                 val todosLosProfesores = snapshot?.mapNotNull { doc ->
-                    doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
+                    try {
+                        doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
+                    } catch (e: Exception) {
+                        android.util.Log.w(
+                            "InicioViewModel",
+                            "Doc ${doc.id} malformado y omitido: ${e.message}"
+                        )
+                        null
+                    }
                 } ?: emptyList()
 
                 // Lógica para separar:

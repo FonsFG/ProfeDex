@@ -47,7 +47,15 @@ class ProfesorViewModelFB : ViewModel() {
                 if (error != null) return@addSnapshotListener
 
                 val documents = querySnapshot?.mapNotNull { document ->
-                    document.toObject(ProfesorFB::class.java).copy(idDoc = document.id)
+                    try {
+                        document.toObject(ProfesorFB::class.java).copy(idDoc = document.id)
+                    } catch (e: Exception) {
+                        android.util.Log.w(
+                            "ProfesorViewModelFB",
+                            "Doc ${document.id} malformado y omitido: ${e.message}"
+                        )
+                        null
+                    }
                 } ?: emptyList()
                 
                 _dataProfeDex.value = documents
@@ -97,7 +105,15 @@ class ProfesorViewModelFB : ViewModel() {
                 if (error != null) return@addSnapshotListener
 
                 val lista = snapshot?.mapNotNull { doc ->
-                    doc.toObject(Review::class.java).copy(id = doc.id)
+                    try {
+                        doc.toObject(Review::class.java).copy(id = doc.id)
+                    } catch (e: Exception) {
+                        android.util.Log.w(
+                            "ProfesorViewModelFB",
+                            "Review ${doc.id} malformada y omitida: ${e.message}"
+                        )
+                        null
+                    }
                 } ?: emptyList()
                 
                 _reviews.value = lista
