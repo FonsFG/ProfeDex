@@ -11,10 +11,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.profedex.data.model.Review
+import androidx.compose.ui.unit.sp
 
+private val EstrellaDorada = Color(0xFFFFB800)
+
+/**
+ * Tarjeta de reseña anónima. No muestra el nombre del alumno.
+ */
 @Composable
-fun ReviewCard(review: Review) {
+fun ReviewCard(
+    estrellas: Int,
+    comentario: String
+) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
@@ -38,36 +46,28 @@ fun ReviewCard(review: Review) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = review.alumno,
-                    style = typography.titleSmall,
+                    text = "Alumno anónimo",
+                    style = typography.titleLarge.copy(fontSize = 13.sp),
                     fontWeight = FontWeight.Bold,
-                    color = colorScheme.onError // Cambio de primary a onError
+                    color = colorScheme.onError
                 )
-                Text(
-                    text = review.fecha,
-                    style = typography.labelSmall,
-                    color = colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row {
-                repeat(5) { index ->
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (index < review.estrellas) Color(0xFFFFD700) else Color.LightGray
-                    )
+                Row {
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = if (index < estrellas) EstrellaDorada else colorScheme.outline.copy(alpha = 0.3f)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = review.comentario,
-                style = typography.bodyMedium,
+                text = comentario,
+                style = typography.bodyLarge.copy(fontSize = 13.sp),
                 color = colorScheme.onSurface
             )
         }

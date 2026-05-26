@@ -5,7 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,9 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,12 +37,8 @@ fun ProfesorProfileScreen(
     onBackClick: () -> Unit,
     onEvaluarClick: () -> Unit
 ) {
-    val reviews by viewModel.reviews.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
-    LaunchedEffect(professor.idDoc) {
-        viewModel.fetchReviews(professor.idDoc)
-    }
+    val comentarios = professor.listaComment
+    val ratings = professor.listaRating
 
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
@@ -248,18 +241,25 @@ fun ProfesorProfileScreen(
                 }
             }
 
-            if (isLoading) {
+            if (comentarios.isEmpty()) {
                 item {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = colorScheme.error)
+                        Text(
+                            text = "Aún no hay reseñas. ¡Sé el primero!",
+                            style = typography.bodyLarge.copy(fontSize = 13.sp),
+                            color = colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             } else {
-                items(reviews) { review ->
-                    ReviewCard(review)
+                itemsIndexed(comentarios) { index, comentario ->
+                    ReviewCard(
+                        estrellas = ratings.getOrNull(index) ?: 0,
+                        comentario = comentario
+                    )
                 }
             }
         }
