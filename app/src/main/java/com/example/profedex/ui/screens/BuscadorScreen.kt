@@ -1,12 +1,5 @@
 package com.example.profedex.ui.screens
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.profedex.data.model.BuscarUiState
-import com.example.profedex.viewmodel.BuscarProfesoresViewModel
-
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -27,18 +20,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.profedex.data.model.Etiqueta
-import com.example.profedex.data.model.Profesor
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import coil.compose.AsyncImage
+import com.example.profedex.R
+import com.example.profedex.data.model.BuscarUiState
+import com.example.profedex.data.model.ProfesorFB
+import com.example.profedex.viewmodel.BuscarProfesoresViewModel
 
 // Colores del tema — basados en tu diseño
 private val RojoFI = Color(0xFFCC1919)
@@ -52,9 +45,9 @@ private val EstrellaDor = Color(0xFFFFB800)
 @Composable
 fun BuscarProfesoresScreen(
     onVolverClick: () -> Unit = {},
+    onProfesorClick: (ProfesorFB) -> Unit = {},
     viewModel: BuscarProfesoresViewModel = viewModel(),
 ) {
-    // collectAsState = "escuchar" el StateFlow — se redibuja cuando cambia
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -65,28 +58,22 @@ fun BuscarProfesoresScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            // ── Logo superior ──────────────────────────────────
             LogoHeader()
-
-            // ── Barra roja con título ──────────────────────────
             BarraTitulo(onVolverClick = onVolverClick)
 
-            // ── Contenido según el estado actual ──────────────
             when (val estado = uiState) {
                 is BuscarUiState.Cargando -> PantallaCargando()
                 is BuscarUiState.Error -> PantallaError(estado.mensaje)
                 is BuscarUiState.Exito -> ContenidoBusqueda(
                     estado = estado,
                     onTextoCambia = viewModel::onBusquedaCambia,
-                    onFiltroClick = viewModel::onFiltroSeleccionado
+                    onFiltroClick = viewModel::onFiltroSeleccionado,
+                    onProfesorClick = onProfesorClick
                 )
             }
         }
     }
 }
-
-// ── Composables pequeños (piezas reutilizables de UI) ─────────────────────────
 
 @Composable
 private fun LogoHeader() {
@@ -97,21 +84,11 @@ private fun LogoHeader() {
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Placeholder del logo robot — reemplazar con Image(painterResource(...))
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        listOf(Color(0xFFE53935), Color(0xFF8B0000))
-                    )
-                )
-                .shadow(8.dp, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("⚙️", fontSize = 32.sp)
-        }
+        Image(
+            painter = painterResource(id = R.drawable.logo_profedex),
+            contentDescription = "Logo ProfeDex",
+            modifier = Modifier.size(60.dp)
+        )
     }
 }
 
@@ -148,13 +125,13 @@ private fun BarraTitulo(onVolverClick: () -> Unit) {
 private fun ContenidoBusqueda(
     estado: BuscarUiState.Exito,
     onTextoCambia: (String) -> Unit,
-    onFiltroClick: (String) -> Unit
+    onFiltroClick: (String) -> Unit,
+    onProfesorClick: (ProfesorFB) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        // Subtítulo
         item {
             Text(
                 text = "Encuentra profesores por nombre, materia o dificultad",
@@ -164,7 +141,6 @@ private fun ContenidoBusqueda(
             )
         }
 
-        // Barra de búsqueda
         item {
             BarraBusqueda(
                 texto = estado.textoBusqueda,
@@ -172,7 +148,6 @@ private fun ContenidoBusqueda(
             )
         }
 
-        // Chips de filtros
         item {
             ChipsFiltros(
                 filtros = estado.filtros,
@@ -181,15 +156,17 @@ private fun ContenidoBusqueda(
             )
         }
 
-        // Lista de profesores
         if (estado.profesores.isEmpty()) {
             item { SinResultados() }
         } else {
             items(
                 items = estado.profesores,
-                key = { it.id }  // key mejora el rendimiento del scroll
+                key = { it.idDoc }
             ) { profesor ->
-                ProfesorCard(profesor = profesor)
+                ProfesorCard(
+                    profesor = profesor,
+                    onClick = { onProfesorClick(profesor) }
+                )
             }
         }
     }
@@ -238,12 +215,10 @@ private fun ChipsFiltros(
     filtroActivo: String?,
     onFiltroClick: (String) -> Unit
 ) {
-    // FlowRow haría wrap automático — simulamos con dos filas manuales
     Column(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Fila 1 — primeros 3 filtros
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             filtros.take(3).forEach { filtro ->
                 ChipFiltro(
@@ -252,7 +227,6 @@ private fun ChipsFiltros(
                 ) { onFiltroClick(filtro) }
             }
         }
-        // Fila 2 — resto de filtros
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             filtros.drop(3).forEach { filtro ->
                 ChipFiltro(
@@ -270,7 +244,6 @@ private fun ChipFiltro(
     activo: Boolean,
     onClick: () -> Unit
 ) {
-    // Chip activo = fondo rojo | inactivo = fondo blanco con borde
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50.dp),
@@ -293,14 +266,18 @@ private fun ChipFiltro(
 }
 
 @Composable
-private fun ProfesorCard(profesor: Profesor) {
+private fun ProfesorCard(
+    profesor: ProfesorFB,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Blanco),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -308,12 +285,10 @@ private fun ProfesorCard(profesor: Profesor) {
                 .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Avatar del profesor
-            AvatarProfesor(nombre = profesor.name)
+            AvatarProfesor(profesor = profesor)
 
             Spacer(modifier = Modifier.width(14.dp))
 
-            // Info: nombre, materia, estrellas, etiquetas
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = profesor.name,
@@ -328,19 +303,17 @@ private fun ProfesorCard(profesor: Profesor) {
                     modifier = Modifier.padding(top = 2.dp)
                 )
 
-                // Estrellas de calificación
                 Estrellas(
                     calificacion = profesor.averageRating,
                     modifier = Modifier.padding(top = 6.dp)
                 )
 
-                // Etiquetas del profesor
                 if (profesor.tags.isNotEmpty()) {
                     Row(
                         modifier = Modifier.padding(top = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        profesor.tags.forEach { etiqueta ->
+                        profesor.tags.take(3).forEach { etiqueta ->
                             EtiquetaChip(texto = etiqueta)
                         }
                     }
@@ -351,28 +324,40 @@ private fun ProfesorCard(profesor: Profesor) {
 }
 
 @Composable
-private fun AvatarProfesor(nombre: String) {
-    // Inicial del nombre como placeholder — reemplazar con AsyncImage (Coil) después
-    val inicial = nombre.firstOrNull()?.uppercaseChar() ?: '?'
-    val coloresAvatar = listOf(
-        Color(0xFF1565C0), Color(0xFF2E7D32), Color(0xFF6A1B9A),
-        Color(0xFFE65100), Color(0xFF00695C)
-    )
-    val colorFondo = coloresAvatar[nombre.length % coloresAvatar.size]
-
-    Box(
-        modifier = Modifier
-            .size(52.dp)
-            .clip(CircleShape)
-            .background(colorFondo),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = inicial.toString(),
-            color = Blanco,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold
+private fun AvatarProfesor(profesor: ProfesorFB) {
+    if (profesor.photo.isNotEmpty()) {
+        AsyncImage(
+            model = profesor.photo,
+            contentDescription = "Foto de ${profesor.name}",
+            placeholder = painterResource(R.drawable.profe_placeholder),
+            error = painterResource(R.drawable.profe_placeholder),
+            modifier = Modifier
+                .size(52.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
+    } else {
+        val inicial = profesor.name.firstOrNull()?.uppercaseChar() ?: '?'
+        val coloresAvatar = listOf(
+            Color(0xFF1565C0), Color(0xFF2E7D32), Color(0xFF6A1B9A),
+            Color(0xFFE65100), Color(0xFF00695C)
+        )
+        val colorFondo = coloresAvatar[profesor.name.length % coloresAvatar.size]
+
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clip(CircleShape)
+                .background(colorFondo),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = inicial.toString(),
+                color = Blanco,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
@@ -417,8 +402,6 @@ private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
         }
     }
 }
-
-// ── Estados especiales ─────────────────────────────────────────────────────────
 
 @Composable
 private fun PantallaCargando() {
@@ -470,11 +453,4 @@ private fun SinResultados() {
             )
         }
     }
-}
-
-// ── Preview — vista previa en Android Studio sin correr la app ─────────────────
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun BuscarProfesoresPreview() {
-    BuscarProfesoresScreen()
 }

@@ -2,10 +2,13 @@ package com.example.profedex.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.profedex.data.model.ProfesorFB
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class InicioViewModel : ViewModel() { //Aqui va lo de la Api
+class InicioViewModel : ViewModel() {
+    private val db = Firebase.firestore
 
     private val _profesoresRecomendados = MutableStateFlow<List<ProfesorFB>>(emptyList())
     val profesoresRecomendados: StateFlow<List<ProfesorFB>> = _profesoresRecomendados
@@ -14,37 +17,29 @@ class InicioViewModel : ViewModel() { //Aqui va lo de la Api
     val profesoresPesados: StateFlow<List<ProfesorFB>> = _profesoresPesados
 
     init {
-        cargarDatosEjemplo()
+        // En lugar de cargar ejemplos, escuchamos a Firebase
+        fetchProfesoresDesdeFirebase()
     }
 
-    private fun cargarDatosEjemplo() {
-        _profesoresRecomendados.value = listOf(
-            ProfesorFB(
-                id = "1",
-                name = "Dr. Ejemplo Recomendado",
-                photo = "foto_profesor_recomendado",
-                department = "Ingeniería",
-                email = "ejemplo@unam.mx",
-                descripcion = "Excelente profesor",
-                averageRating = 4.8,
-                difficulty = 2.0,
-                tags = listOf("Claro", "Puntual"),
-                materia = "Cálculo I"
-            )
-        )
-        _profesoresPesados.value = listOf(
-            ProfesorFB(
-                id = "2",
-                name = "Dr. Ejemplo Pesado",
-                photo = "foto_profesor_pesado",
-                department = "Ingeniería",
-                email = "ejemplo2@unam.mx",
-                descripcion = "Muy exigente",
-                averageRating = 2.5,
-                difficulty = 3.5,
-                tags = listOf("Difícil", "Exigente"),
-                materia = "Física III"
-            )
-        )
+    private fun fetchProfesoresDesdeFirebase() {
+        db.collection("ProfeDexFB")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+
+                val todosLosProfesores = snapshot?.mapNotNull { doc ->
+                    doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
+                } ?: emptyList()
+
+                // Lógica para separar:
+                // Los recomendados (ej: rating > 4)
+                _profesoresRecomendados.value = todosLosProfesores
+                    .filter { it.averageRating >= 4.0 }
+                    .sortedByDescending { it.averageRating }
+
+                // Los pesados (ej: dificultad > 3)
+                _profesoresPesados.value = todosLosProfesores
+                    .filter { it.difficulty >= 3.5 }
+                    .sortedByDescending { it.difficulty }
+            }
     }
 }

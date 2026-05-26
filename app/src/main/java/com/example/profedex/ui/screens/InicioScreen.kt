@@ -8,9 +8,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,13 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
 import com.example.profedex.viewmodel.InicioViewModel
 
 @Composable
 fun InicioScreen(
-    onProfesorClick: (ProfesorFB) -> Unit = {},   // ← recibe el profesor elegido
+    onProfesorClick: (ProfesorFB) -> Unit = {},
     onSearchClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel()
 ) {
@@ -46,9 +44,9 @@ fun InicioScreen(
             .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── HEADER ────────────────────────
+        // ── HEADER (Rojo con letras Blancas) ────────────────────────
         Surface(
-            color = colorScheme.onError, // Cambio de primary a onError
+            color = colorScheme.error, // Fondo Rojo
             shadowElevation = 4.dp
         ) {
             Row(
@@ -66,12 +64,12 @@ fun InicioScreen(
                 Column {
                     Text(
                         text = "PROFEDEX",
-                        color = colorScheme.primary, // Ajuste para que se vea sobre el fondo onError
+                        color = colorScheme.onError, // Letras Blancas
                         style = typography.titleLarge.copy(fontSize = 22.sp, letterSpacing = 1.sp)
                     )
                     Text(
                         text = "Facultad de Ingeniería UNAM",
-                        color = colorScheme.primary.copy(alpha = 0.8f),
+                        color = colorScheme.onError.copy(alpha = 0.8f),
                         style = typography.bodyLarge.copy(fontSize = 11.sp)
                     )
                 }
@@ -85,7 +83,7 @@ fun InicioScreen(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(180.dp)
         )
 
         // ── BIENVENIDA ───────────────────────────────────────────
@@ -117,9 +115,10 @@ fun InicioScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    painter = painterResource(id = R.drawable.busqueda),
                     contentDescription = "Buscar",
-                    tint = colorScheme.onError // Cambio de primary a onError
+                    tint = colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
@@ -128,145 +127,123 @@ fun InicioScreen(
                     style = typography.bodyLarge.copy(fontSize = 14.sp),
                     modifier = Modifier.weight(1f)
                 )
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Filtros",
-                    tint = colorScheme.outline
-                )
             }
         }
 
-        // ── TARJETAS PRINCIPALES ─────────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            TarjetaCategoria(
-                modifier = Modifier.weight(1f),
-                icono = R.drawable.estrella_recomendado,
-                fotoProfesor = R.drawable.profe_recomendado,
-                titulo = "PROFES MÁS RECOMENDADOS",
-                descripcion = "Los mejores evaluados por la comunidad.",
-                valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
-                etiqueta = "Promedio",
+        // ── SECCIONES ──────────────────────
+        SectionHeader("PROFES MÁS RECOMENDADOS", colorScheme.tertiary)
+        profesoresRecomendados.forEach { profesor ->
+            ProfesorCardInicio(
+                profesor = profesor,
                 colorEtiqueta = colorScheme.tertiary,
-                // ← toma el primer profe recomendado y lo manda arriba
-                onClick = {
-                    profesoresRecomendados.firstOrNull()?.let { onProfesorClick(it) }
-                }
-            )
-
-            TarjetaCategoria(
-                modifier = Modifier.weight(1f),
-                icono = R.drawable.logo_norecomendado,
-                fotoProfesor = R.drawable.profe_norecomendado,
-                titulo = "PROFES PESADOS",
-                descripcion = "Alto nivel de exigencia y dificultad.",
-                valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
-                etiqueta = "Dificultad",
-                colorEtiqueta = colorScheme.error,
-                onClick = {
-                    profesoresPesados.firstOrNull()?.let { onProfesorClick(it) }
-                }
+                etiqueta = "Promedio",
+                valor = profesor.averageRating,
+                onClick = { onProfesorClick(profesor) }
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SectionHeader("PROFES PESADOS", colorScheme.error)
+        profesoresPesados.forEach { profesor ->
+            ProfesorCardInicio(
+                profesor = profesor,
+                colorEtiqueta = colorScheme.error,
+                etiqueta = "Dificultad",
+                valor = profesor.difficulty,
+                onClick = { onProfesorClick(profesor) }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
 @Composable
-fun TarjetaCategoria(
-    modifier: Modifier = Modifier,
-    icono: Int,
-    fotoProfesor: Int,
-    titulo: String,
-    descripcion: String,
-    valoracion: Double,
-    etiqueta: String,
+fun SectionHeader(titulo: String, color: Color) {
+    Text(
+        text = titulo,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        style = MaterialTheme.typography.titleLarge.copy(
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+    )
+}
+
+@Composable
+fun ProfesorCardInicio(
+    profesor: ProfesorFB,
     colorEtiqueta: Color,
+    etiqueta: String,
+    valor: Double,
     onClick: () -> Unit
 ) {
     val typography = MaterialTheme.typography
-    
+    val colorScheme = MaterialTheme.colorScheme
+
     ElevatedCard(
-        modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        onClick = onClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        onClick = onClick,
+        colors = CardDefaults.elevatedCardColors(containerColor = colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Image(
-                    painter = painterResource(id = icono),
+            if (profesor.photo.isNotEmpty()) {
+                AsyncImage(
+                    model = profesor.photo,
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp)
-                )
-                Image(
-                    painter = painterResource(id = fotoProfesor),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(60.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
                         .clip(CircleShape)
+                        .background(colorEtiqueta.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = profesor.name.firstOrNull()?.toString() ?: "?",
+                        style = typography.titleLarge.copy(color = colorEtiqueta)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = profesor.name,
+                    style = typography.titleLarge.copy(fontSize = 15.sp),
+                    maxLines = 1
+                )
+                Text(
+                    text = profesor.materia,
+                    style = typography.bodyLarge.copy(fontSize = 12.sp, color = Color.Gray),
+                    maxLines = 1
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = titulo,
-                style = typography.titleLarge.copy(fontSize = 12.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                minLines = 2
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = descripcion,
-                style = typography.bodyLarge.copy(fontSize = 10.sp, lineHeight = 14.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                maxLines = 3
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Surface(
-                color = colorEtiqueta.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "%.1f".format(valoracion),
-                        style = typography.titleLarge.copy(fontSize = 13.sp),
-                        color = colorEtiqueta
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = etiqueta,
-                        style = typography.bodyLarge.copy(fontSize = 10.sp),
-                        color = colorEtiqueta
-                    )
-                }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "%.1f".format(valor),
+                    style = typography.titleLarge.copy(fontSize = 18.sp, color = colorEtiqueta)
+                )
+                Text(
+                    text = etiqueta,
+                    style = typography.bodyLarge.copy(fontSize = 10.sp, color = Color.Gray)
+                )
             }
         }
     }
 }
-
-

@@ -11,17 +11,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.profedex.data.model.Review // Importa tu data class Review
+import com.example.profedex.data.model.Review
 
 @Composable
 fun ReviewCard(review: Review) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.4f)
         )
     ) {
         Column(
@@ -29,7 +32,6 @@ fun ReviewCard(review: Review) {
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // Fila superior: Nombre del alumno y Fecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -37,20 +39,19 @@ fun ReviewCard(review: Review) {
             ) {
                 Text(
                     text = review.alumno,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = colorScheme.onError // Cambio de primary a onError
                 )
                 Text(
                     text = review.fecha,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Sistema de Estrellas (Dibuja 5 estrellas, pinta de amarillo las que el progre tenga)
             Row {
                 repeat(5) { index ->
                     Icon(
@@ -64,11 +65,10 @@ fun ReviewCard(review: Review) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // El comentario del alumno
             Text(
                 text = review.comentario,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                style = typography.bodyMedium,
+                color = colorScheme.onSurface
             )
         }
     }

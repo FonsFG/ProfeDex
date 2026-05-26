@@ -19,7 +19,6 @@ import com.example.profedex.ui.screens.LoginScreen
 import com.example.profedex.ui.screens.PerfilUsuarioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
 import com.example.profedex.viewmodel.ProfesorViewModelFB
-import com.example.profedex.data.model.ProfesorFB  // ← import del modelo
 
 object Rutas {
     const val LOGIN = "login"
@@ -41,12 +40,8 @@ fun InicioApp() {
     val navController = rememberNavController()
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
-
+    
     val profesorViewModel: ProfesorViewModelFB = viewModel()
-
-    LaunchedEffect(Unit) {
-        profesorViewModel.fetchProfesorFB()
-    }
 
     val itemsNavBar = listOf(
         ItemNavBar(Rutas.INICIO,     R.drawable.home,     "Inicio"),
@@ -84,11 +79,11 @@ fun InicioApp() {
                                     contentDescription = item.descripcion
                                 )
                             },
-                            label = {
+                            label = { 
                                 Text(
-                                    text = item.descripcion,
+                                    text = item.descripcion, 
                                     style = typography.bodyLarge.copy(fontSize = 10.sp)
-                                )
+                                ) 
                             },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colorScheme.onError,
@@ -120,7 +115,6 @@ fun InicioApp() {
 
             composable(Rutas.INICIO) {
                 InicioScreen(
-                    // ← recibe el profesor, lo guarda y navega
                     onProfesorClick = { profesor ->
                         profesorViewModel.seleccionarProfesor(profesor)
                         navController.navigate(Rutas.PROFESOR)
@@ -130,7 +124,7 @@ fun InicioApp() {
                     }
                 )
             }
-
+            
             composable(Rutas.PERFIL) {
                 PerfilUsuarioScreen()
             }
@@ -140,11 +134,9 @@ fun InicioApp() {
                     onBackClick = { navController.popBackStack() }
                 )
             }
-
+            
             composable(Rutas.PROFESOR) {
-                // ← lee directo del state, Compose redibuja solo cuando cambia
                 val profesor = profesorViewModel.state
-
                 ProfesorProfileScreen(
                     professor = profesor,
                     viewModel = profesorViewModel,
@@ -155,7 +147,11 @@ fun InicioApp() {
 
             composable(Rutas.BUSCADOR) {
                 BuscarProfesoresScreen(
-                    onVolverClick = { navController.popBackStack() }
+                    onVolverClick = { navController.popBackStack() },
+                    onProfesorClick = { profesor ->
+                        profesorViewModel.seleccionarProfesor(profesor)
+                        navController.navigate(Rutas.PROFESOR)
+                    }
                 )
             }
         }
