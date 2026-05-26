@@ -60,4 +60,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Para probar Flow/Coroutines
+    implementation(kotlin("test"))
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

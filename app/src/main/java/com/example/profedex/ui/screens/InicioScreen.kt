@@ -302,29 +302,20 @@ fun ProfesorCardInicio(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (profesor.photo.isNotEmpty()) {
-                AsyncImage(
-                    model = profesor.photo,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(colorEtiqueta.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = profesor.name.firstOrNull()?.toString() ?: "?",
-                        style = typography.titleLarge.copy(color = colorEtiqueta)
-                    )
-                }
-            }
+
+            // ─── AQUÍ QUEDÓ EL CAMBIO DEL PIXEL ART ───
+            AsyncImage(
+                model = obtenerPokemonPixelUrl(profesor.avatarUrl, profesor.idDoc),
+                contentDescription = "Sprite de ${profesor.name}",
+                placeholder = painterResource(id = R.drawable.profe_placeholder),
+                error = painterResource(id = R.drawable.profe_placeholder),
+                modifier = Modifier
+                    .size(70.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .padding(1.dp),
+                contentScale = ContentScale.Fit
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -335,7 +326,9 @@ fun ProfesorCardInicio(
                     maxLines = 1
                 )
                 Text(
-                    text = profesor.materia,
+                    // .firstOrNull() toma la primera materia de la lista para no saturar la tarjeta pequeña,
+                    // y si la lista está vacía pone "Sin materia"
+                    text = profesor.materia.firstOrNull() ?: "Sin materia",
                     style = typography.bodyLarge.copy(fontSize = 12.sp, color = Color.Gray),
                     maxLines = 1
                 )
@@ -353,4 +346,16 @@ fun ProfesorCardInicio(
             }
         }
     }
+}
+/**
+ * Genera la URL del sprite en Pixel Art (Frente) basado en el número de Pokémon o ID del profesor.
+ */
+fun obtenerPokemonPixelUrl(avatarUrl: String, profesorId: String, limitePokemon: Int = 151): String {
+    val pokemonId = if (avatarUrl.isNotEmpty()) {
+        avatarUrl
+    } else {
+        (kotlin.math.abs(profesorId.hashCode()) % limitePokemon + 1).toString()
+    }
+    // Esta URL apunta directo al sprite pixelado tradicional en los servidores de la PokeAPI
+    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
 }

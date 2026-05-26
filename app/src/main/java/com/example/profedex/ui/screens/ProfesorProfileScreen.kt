@@ -101,14 +101,26 @@ fun ProfesorProfileScreen(
                             modifier = Modifier.width(150.dp)
                         ) {
                             AsyncImage(
-                                model = professor.photo,
-                                contentDescription = null,
-                                placeholder = painterResource(R.drawable.profe_placeholder),
-                                error = painterResource(R.drawable.profe_placeholder),
+                                // 1. La fuente de la imagen (URL, URI, recurso local o File)
+                                model = obtenerPokemonUrl(professor.avatarUrl, professor.idDoc),
+
+                                // 2. Descripción de accesibilidad (para lectores de pantalla)
+                                contentDescription = "Avatar de ${professor.name}",
+
+                                // 3. Imagen temporal mientras se descarga de internet
+                                placeholder = painterResource(id = R.drawable.profe_placeholder),
+
+                                // 4. Imagen de respaldo por si no hay internet o la URL no existe
+                                error = painterResource(id = R.drawable.profe_placeholder),
+
+                                // 5. Modificadores de diseño (tamaño, recortes, fondos, bordes)
                                 modifier = Modifier
                                     .size(120.dp)
                                     .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
                                     .border(3.dp, Color.LightGray, CircleShape),
+
+                                // 6. Cómo se adapta la imagen al contenedor (recorte, estirado, etc.)
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -147,7 +159,8 @@ fun ProfesorProfileScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Text(
-                        text = "MATERIA: ${professor.materia}",
+                        // Juntamos todos los elementos de la lista separados por una coma y espacio
+                        text = "MATERIAS: ${professor.materia.joinToString(", ")}",
                         style = typography.titleLarge.copy(fontSize = 14.sp),
                         color = colorScheme.primary,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -257,16 +270,30 @@ fun RatingDisplay(label: String, value: String, color: Color) {
 
 fun getRatingColor(value: Double): Color {
     return when {
-        value >= 8.5 -> Color(0xFF4CAF50)
-        value >= 7.0 -> Color(0xFFFFC107)
-        else -> Color(0xFFF44336)
+        value <= 2 -> Color(0xFFF44336)
+        value <= 3.5 -> Color(0xFFFFC107)
+        else -> Color(0xFF4CAF50)
     }
 }
 
 fun getDifficultyColor(value: Double): Color {
     return when {
-        value >= 8.0 -> Color(0xFFF44336)
-        value >= 5.0 -> Color(0xFFFFC107)
-        else -> Color(0xFF4CAF50)
+        value <= 2 -> Color(0xFF4CAF50)
+        value <= 3.5 -> Color(0xFFFFC107)
+        else -> Color(0xFFF44336)
     }
+}
+/**
+ * Genera una URL de arte oficial de Pokémon de forma consistente basada en el ID del profesor.
+ */
+fun obtenerPokemonUrl(avatarUrl: String, profesorId: String): String {
+    // Si en Firebase le pusiste número (ej. "25"), usamos ese número.
+    // Si lo dejaste vacío, usamos el respaldo matemático por ID para que no se quede sin foto.
+    val pokemonId = if (avatarUrl.isNotEmpty()) {
+        avatarUrl
+    } else {
+        (kotlin.math.abs(profesorId.hashCode()) % 151 + 1).toString()
+    }
+
+    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokemonId.png"
 }

@@ -296,11 +296,15 @@ private fun ProfesorCard(
                     fontSize = 16.sp,
                     color = TextoPrincipal
                 )
+
+                // CORRECCIÓN AQUÍ: Tomamos el primer elemento de la lista o mostramos "Sin materia asignada"
                 Text(
-                    text = profesor.materia,
+                    text = profesor.materia.firstOrNull() ?: "Sin materia asignada",
                     fontSize = 13.sp,
                     color = TextoSecundario,
-                    modifier = Modifier.padding(top = 2.dp)
+                    modifier = Modifier.padding(top = 2.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Estrellas(

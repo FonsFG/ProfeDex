@@ -38,12 +38,20 @@ class BuscarProfesoresViewModel : ViewModel() {
                     doc.toObject(ProfesorFB::class.java).copy(idDoc = doc.id)
                 } ?: emptyList()
 
-                actualizarUi()
+                // Mantenemos los valores actuales al actualizar tras un cambio en Firebase
+                val estadoActual = _uiState.value
+                if (estadoActual is BuscarUiState.Exito) {
+                    actualizarUi(texto = estadoActual.textoBusqueda, filtro = estadoActual.filtroActivo)
+                } else {
+                    actualizarUi()
+                }
             }
     }
 
     fun onBusquedaCambia(texto: String) {
-        actualizarUi(texto = texto)
+        val estadoActual = _uiState.value
+        val filtroActual = (estadoActual as? BuscarUiState.Exito)?.filtroActivo
+        actualizarUi(texto = texto, filtro = filtroActual)
     }
 
     fun onFiltroSeleccionado(filtro: String) {
@@ -56,9 +64,10 @@ class BuscarProfesoresViewModel : ViewModel() {
 
     private fun actualizarUi(texto: String = "", filtro: String? = null) {
         val filtrados = todosProfesores.filter { profesor ->
+            // CORRECCIÓN AQUÍ: Evaluamos la lista de materias de forma dinámica
             val coincideTexto = texto.isBlank() ||
                     profesor.name.contains(texto, ignoreCase = true) ||
-                    profesor.materia.contains(texto, ignoreCase = true)
+                    profesor.materia.any { materia -> materia.contains(texto, ignoreCase = true) }
 
             val coincideFiltro = filtro == null || profesor.tags.contains(filtro)
             coincideTexto && coincideFiltro
