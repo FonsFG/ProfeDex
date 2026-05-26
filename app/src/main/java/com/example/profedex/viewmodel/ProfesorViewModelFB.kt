@@ -116,9 +116,9 @@ class ProfesorViewModelFB : ViewModel() {
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        db.collection("profesores") // Reemplaza por el nombre real de tu colección
+        db.collection("ProfeDexFB")
             .document(profesorId)
-            .set(profesorActualizado) // Al usar .set() actualiza todo el documento con las nuevas listas y promedios
+            .set(profesorActualizado)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onFailure(e) }
     }
