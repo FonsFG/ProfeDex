@@ -17,7 +17,6 @@ class ProfesorViewModelFB : ViewModel() {
 
     private val db = Firebase.firestore
     
-    // Referencias a los listeners para poder cancelarlos y evitar fugas de memoria
     private var profesorListener: ListenerRegistration? = null
     private var reviewListener: ListenerRegistration? = null
 
@@ -38,7 +37,7 @@ class ProfesorViewModelFB : ViewModel() {
     }
     
     fun seleccionarProfesor(profesor: ProfesorFB) {
-        state = profesor   // actualiza el state con el profesor que tocaron
+        state = profesor
     }
 
     fun fetchProfesorFB() {
@@ -52,6 +51,34 @@ class ProfesorViewModelFB : ViewModel() {
                 } ?: emptyList()
                 
                 _dataProfeDex.value = documents
+            }
+    }
+
+    fun guardarNuevoProfesor(
+        nuevoProfe: ProfesorFB,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        _isLoading.value = true
+        
+        val listaActual = _dataProfeDex.value
+        val ultimoId = listaActual.mapNotNull { it.id.toIntOrNull() }.maxOrNull() ?: 10
+        val siguienteId = (ultimoId + 1).toString()
+
+        val profeFinal = nuevoProfe.copy(
+            id = siguienteId,
+            photo = "URL"
+        )
+
+        db.collection("ProfeDexFB")
+            .add(profeFinal)
+            .addOnSuccessListener {
+                _isLoading.value = false
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                _isLoading.value = false
+                onFailure(e)
             }
     }
 
