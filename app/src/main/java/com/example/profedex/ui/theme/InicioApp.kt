@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.profedex.R
 import com.example.profedex.ui.screens.BuscarProfesoresScreen
 import com.example.profedex.ui.screens.EvaluationScreen
+import com.example.profedex.ui.screens.EvaluarProfesorScreen // ← Tu nueva pantalla de evaluación
 import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.LoginScreen
 import com.example.profedex.ui.screens.PerfilUsuarioScreen
@@ -27,9 +28,10 @@ object Rutas {
     const val INICIO = "inicio"
     const val PERFIL = "perfil"
     const val PROFESOR = "profesor"
-    const val EVALUACION = "evaluacion"
+    const val REGISTRAR = "registrar" // Se queda para la pestaña de crear nuevos profes
     const val BUSCADOR = "buscador"
     const val REGISTRO = "registro"
+    const val EVALUAR = "evaluar"     // ← Nueva ruta exclusiva para calificar profesores
 }
 
 data class ItemNavBar(
@@ -43,20 +45,23 @@ fun InicioApp() {
     val navController = rememberNavController()
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
-    
+
     val profesorViewModel: ProfesorViewModelFB = viewModel()
     val usuarioViewModel: UsuarioViewModel = viewModel()
 
     val itemsNavBar = listOf(
         ItemNavBar(Rutas.INICIO,     R.drawable.home,     "Inicio"),
         ItemNavBar(Rutas.PERFIL,     R.drawable.perfil,   "Perfil"),
-        ItemNavBar(Rutas.EVALUACION, R.drawable.registro, "Evaluación"),
-        ItemNavBar(Rutas.PROFESOR,   R.drawable.perfil,   "Profesor")
+        ItemNavBar(Rutas.REGISTRAR,  R.drawable.registro, "Registrar")
     )
 
     val backStack by navController.currentBackStackEntryAsState()
     val rutaActual = backStack?.destination?.route
-    val mostrarBottomBar = rutaActual != Rutas.LOGIN && rutaActual != Rutas.BUSCADOR && rutaActual != Rutas.REGISTRO
+    // Ocultamos la barra tanto en pantallas de login/registro como en el buscador y el formulario de evaluar
+    val mostrarBottomBar = rutaActual != Rutas.LOGIN &&
+            rutaActual != Rutas.BUSCADOR &&
+            rutaActual != Rutas.REGISTRO &&
+            rutaActual != Rutas.EVALUAR
 
     Scaffold(
         bottomBar = {
@@ -83,11 +88,11 @@ fun InicioApp() {
                                     contentDescription = item.descripcion
                                 )
                             },
-                            label = { 
+                            label = {
                                 Text(
-                                    text = item.descripcion, 
+                                    text = item.descripcion,
                                     style = typography.bodyLarge.copy(fontSize = 10.sp)
-                                ) 
+                                )
                             },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colorScheme.onError,
@@ -146,24 +151,35 @@ fun InicioApp() {
                     }
                 )
             }
-            
+
             composable(Rutas.PERFIL) {
                 PerfilUsuarioScreen(viewModel = usuarioViewModel)
             }
 
-            composable(Rutas.EVALUACION) {
+            // Mantiene la pantalla original para dar de alta nuevos profesores desde el NavBar
+            composable(Rutas.REGISTRAR) {
                 EvaluationScreen(
                     onBackClick = { navController.popBackStack() }
                 )
             }
-            
+
             composable(Rutas.PROFESOR) {
                 val profesor = profesorViewModel.state
                 ProfesorProfileScreen(
                     professor = profesor,
                     viewModel = profesorViewModel,
                     onBackClick = { navController.popBackStack() },
-                    onEvaluarClick = { navController.navigate(Rutas.EVALUACION) }
+                    onEvaluarClick = { navController.navigate(Rutas.EVALUAR) } // ← Redirecciona a la nueva ruta
+                )
+            }
+
+            // NUEVO DESTINO: Abre el formulario de calificación cargando el profesor guardado en el State
+            composable(Rutas.EVALUAR) {
+                val profesorActual = profesorViewModel.state
+                EvaluarProfesorScreen(
+                    professor = profesorActual,
+                    viewModel = profesorViewModel,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 

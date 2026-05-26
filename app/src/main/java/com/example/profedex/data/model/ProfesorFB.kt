@@ -12,5 +12,8 @@ data class ProfesorFB(
     val difficulty: Double = 0.0,
     val tags: List<String> = emptyList(),
     val materia: List<String> = emptyList(),
-    val avatarUrl: String = ""
+    val avatarUrl: String = "",
+    val listaRating: List<Int> = emptyList(),
+    val listaDifficulty: List<Int> = emptyList(),
+    val listaComment: List<String> = emptyList()
 )
