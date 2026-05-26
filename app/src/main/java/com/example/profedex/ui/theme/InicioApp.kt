@@ -18,7 +18,9 @@ import com.example.profedex.ui.screens.InicioScreen
 import com.example.profedex.ui.screens.LoginScreen
 import com.example.profedex.ui.screens.PerfilUsuarioScreen
 import com.example.profedex.ui.screens.ProfesorProfileScreen
+import com.example.profedex.ui.screens.RegistroScreen
 import com.example.profedex.viewmodel.ProfesorViewModelFB
+import com.example.profedex.viewmodel.UsuarioViewModel
 
 object Rutas {
     const val LOGIN = "login"
@@ -27,6 +29,7 @@ object Rutas {
     const val PROFESOR = "profesor"
     const val EVALUACION = "evaluacion"
     const val BUSCADOR = "buscador"
+    const val REGISTRO = "registro"
 }
 
 data class ItemNavBar(
@@ -42,6 +45,7 @@ fun InicioApp() {
     val typography = MaterialTheme.typography
     
     val profesorViewModel: ProfesorViewModelFB = viewModel()
+    val usuarioViewModel: UsuarioViewModel = viewModel()
 
     val itemsNavBar = listOf(
         ItemNavBar(Rutas.INICIO,     R.drawable.home,     "Inicio"),
@@ -52,7 +56,7 @@ fun InicioApp() {
 
     val backStack by navController.currentBackStackEntryAsState()
     val rutaActual = backStack?.destination?.route
-    val mostrarBottomBar = rutaActual != Rutas.LOGIN && rutaActual != Rutas.BUSCADOR
+    val mostrarBottomBar = rutaActual != Rutas.LOGIN && rutaActual != Rutas.BUSCADOR && rutaActual != Rutas.REGISTRO
 
     Scaffold(
         bottomBar = {
@@ -105,11 +109,29 @@ fun InicioApp() {
         ) {
             composable(Rutas.LOGIN) {
                 LoginScreen(
-                    onLoginSuccess = {
+                    viewModel = usuarioViewModel,
+                    onLoginSuccess = { username ->
+                        usuarioViewModel.fetchUsuario(username)
                         navController.navigate(Rutas.INICIO) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
+                    },
+                    onRegisterClick = {
+                        navController.navigate(Rutas.REGISTRO)
                     }
+                )
+            }
+
+            composable(Rutas.REGISTRO) {
+                RegistroScreen(
+                    viewModel = usuarioViewModel,
+                    onRegistroExitoso = { username ->
+                        usuarioViewModel.fetchUsuario(username)
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.LOGIN) { inclusive = true }
+                        }
+                    },
+                    onVolverClick = { navController.popBackStack() }
                 )
             }
 
@@ -126,7 +148,7 @@ fun InicioApp() {
             }
             
             composable(Rutas.PERFIL) {
-                PerfilUsuarioScreen()
+                PerfilUsuarioScreen(viewModel = usuarioViewModel)
             }
 
             composable(Rutas.EVALUACION) {

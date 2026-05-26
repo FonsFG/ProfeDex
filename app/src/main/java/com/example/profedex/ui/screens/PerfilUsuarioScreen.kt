@@ -123,8 +123,12 @@ fun PerfilUsuarioScreen(
 
                 Button(
                     onClick = {
-                        if (modoEdicion) mensajeGuardado = true
-                        else mensajeGuardado = false
+                        if (modoEdicion) {
+                            viewModel.guardarUsuario()
+                            mensajeGuardado = true
+                        } else {
+                            mensajeGuardado = false
+                        }
                         modoEdicion = !modoEdicion
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),

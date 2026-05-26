@@ -24,19 +24,35 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.profedex.R
+import com.example.profedex.viewmodel.AuthResult
+import com.example.profedex.viewmodel.UsuarioViewModel
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: (String) -> Unit = {},
-    onRegisterClick: () -> Unit = {}
+    onRegisterClick: () -> Unit = {},
+    viewModel: UsuarioViewModel = viewModel()
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    
+
+    val loginResult by viewModel.loginResult.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
+
+    LaunchedEffect(loginResult) {
+        val resultado = loginResult
+        if (resultado is AuthResult.Success) {
+            onLoginSuccess(resultado.username)
+            viewModel.resetLoginResult()
+        }
+    }
+
+    val mensajeError = (loginResult as? AuthResult.Error)?.mensaje
+    val cargando = loginResult is AuthResult.Loading
 
     Column(
         modifier = Modifier
@@ -61,7 +77,7 @@ fun LoginScreen(
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.4f))
             )
-            
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -76,7 +92,7 @@ fun LoginScreen(
                 Text(
                     text = "PROFEDEX",
                     style = typography.titleLarge.copy(
-                        fontSize = 36.sp, 
+                        fontSize = 36.sp,
                         letterSpacing = 2.sp,
                         color = Color.White
                     )
@@ -100,43 +116,49 @@ fun LoginScreen(
             Text(
                 text = "Iniciar Sesión",
                 style = typography.titleLarge.copy(fontSize = 24.sp),
-                color = colorScheme.onError, // Cambio de primary a onError
+                color = colorScheme.onError,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Start
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             OutlinedTextField(
                 value = username,
-                onValueChange = { username = it },
+                onValueChange = {
+                    username = it
+                    if (loginResult is AuthResult.Error) viewModel.resetLoginResult()
+                },
                 label = { Text("Usuario", style = typography.bodyLarge) },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = colorScheme.onError) }, // Cambio de primary a onError
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = colorScheme.onError) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.onError, // Cambio de primary a onError
+                    focusedBorderColor = colorScheme.onError,
                     unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
-                    focusedLabelColor = colorScheme.onError, // Cambio de primary a onError
-                    cursorColor = colorScheme.onError // Cambio de primary a onError
+                    focusedLabelColor = colorScheme.onError,
+                    cursorColor = colorScheme.onError
                 )
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    if (loginResult is AuthResult.Error) viewModel.resetLoginResult()
+                },
                 label = { Text("Contraseña", style = typography.bodyLarge) },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = colorScheme.onError) }, // Cambio de primary a onError
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = colorScheme.onError) },
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = icon,
                             contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                            tint = colorScheme.onError // Cambio de primary a onError
+                            tint = colorScheme.onError
                         )
                     }
                 },
@@ -145,34 +167,54 @@ fun LoginScreen(
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.onError, // Cambio de primary a onError
+                    focusedBorderColor = colorScheme.onError,
                     unfocusedBorderColor = colorScheme.outline.copy(alpha = 0.5f),
-                    focusedLabelColor = colorScheme.onError, // Cambio de primary a onError
-                    cursorColor = colorScheme.onError // Cambio de primary a onError
+                    focusedLabelColor = colorScheme.onError,
+                    cursorColor = colorScheme.onError
                 )
             )
-            
+
+            if (mensajeError != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = mensajeError,
+                    color = colorScheme.error,
+                    style = typography.bodyLarge.copy(fontSize = 13.sp),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Button(
-                onClick = { onLoginSuccess(username) },
+                onClick = { viewModel.login(username.trim(), password) },
+                enabled = !cargando,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorScheme.onError, // Cambio de primary a onError
-                    contentColor = colorScheme.primary // Cambio para contraste
+                    containerColor = colorScheme.onError,
+                    contentColor = colorScheme.primary
                 )
             ) {
-                Text(
-                    text = "ENTRAR",
-                    style = typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                )
+                if (cargando) {
+                    CircularProgressIndicator(
+                        color = colorScheme.primary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    Text(
+                        text = "ENTRAR",
+                        style = typography.titleLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    )
+                }
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -185,20 +227,20 @@ fun LoginScreen(
                     Text(
                         text = "Crea una cuenta",
                         style = typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                        color = colorScheme.onError // Cambio de primary a onError
+                        color = colorScheme.onError
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(40.dp))
-            
+
             Text(
                 text = "Hecho por y para la comunidad FI",
                 style = typography.bodyLarge.copy(fontSize = 10.sp),
-                color = colorScheme.onError.copy(alpha = 0.6f), // Cambio de primary a onError
+                color = colorScheme.onError.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
