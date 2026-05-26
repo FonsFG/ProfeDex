@@ -296,14 +296,11 @@ private fun ProfesorCard(
                     fontSize = 16.sp,
                     color = TextoPrincipal
                 )
-
                 Text(
-                    text = profesor.materia.firstOrNull() ?: "Sin materia asignada",
+                    text = profesor.materia.firstOrNull() ?: "Sin materia",
                     fontSize = 13.sp,
                     color = TextoSecundario,
-                    modifier = Modifier.padding(top = 2.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    modifier = Modifier.padding(top = 2.dp)
                 )
 
                 Estrellas(
@@ -327,6 +324,29 @@ private fun ProfesorCard(
 }
 
 @Composable
+private fun AvatarProfesor(profesor: ProfesorFB) {
+    // Usamos la misma lógica de Pixel Art que en el inicio
+    val pokemonId = if (profesor.avatarUrl.isNotEmpty()) {
+        profesor.avatarUrl
+    } else {
+        (kotlin.math.abs(profesor.idDoc.hashCode()) % 151 + 1).toString()
+    }
+    val urlPixel = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
+
+    AsyncImage(
+        model = urlPixel,
+        contentDescription = "Sprite de ${profesor.name}",
+        placeholder = painterResource(id = R.drawable.profe_placeholder),
+        error = painterResource(id = R.drawable.profe_placeholder),
+        modifier = Modifier
+            .size(52.dp)
+            .clip(CircleShape)
+            .background(Color.LightGray.copy(alpha = 0.2f)),
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
 private fun Estrellas(
     calificacion: Double,
     modifier: Modifier = Modifier,
@@ -344,6 +364,7 @@ private fun Estrellas(
         }
     }
 }
+
 @Composable
 private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
     Surface(
@@ -365,27 +386,6 @@ private fun EtiquetaChip(texto: String, esDestacada: Boolean = false) {
             )
         }
     }
-}
-
-@Composable
-private fun AvatarProfesor(profesor: ProfesorFB) {
-    // Definimos esquinas casi rectas de 6.dp para el estilo pixel art
-    val formaPixelArt = RoundedCornerShape(6.dp)
-    val bordeGrisPixel = BorderStroke(1.5.dp, Color(0xFFBBBBBB))
-
-    // Llama directamente a la función que ya compila en tu otra pantalla
-    val pokemonUrl = obtenerPokemonPixelUrl(profesor.avatarUrl, profesor.idDoc)
-
-    AsyncImage(
-        model = pokemonUrl,
-        contentDescription = "Avatar de ${profesor.name}",
-        modifier = Modifier
-            .size(54.dp)
-            .border(bordeGrisPixel, formaPixelArt)
-            .clip(formaPixelArt)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
-        contentScale = ContentScale.Crop
-    )
 }
 
 @Composable

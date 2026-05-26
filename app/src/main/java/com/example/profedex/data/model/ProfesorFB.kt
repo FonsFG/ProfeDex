@@ -1,12 +1,10 @@
 package com.example.profedex.data.model
 
-import com.google.firebase.firestore.PropertyName
-
 data class ProfesorFB(
     val idDoc: String = "",
-    val id: String = "", // Es mejor mantenerlo como String por consistencia
+    val id: String = "", 
     val name: String = "",
-    val photo: String = "",
+    val photo: String = "URL",
     val department: String = "",
     val email: String = "",
     val descripcion: String = "",
