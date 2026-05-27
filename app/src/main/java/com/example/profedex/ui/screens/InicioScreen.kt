@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
+import com.example.profedex.ui.theme.theme.backgroundLight
 import com.example.profedex.viewmodel.InicioViewModel
 
 @Composable
@@ -70,12 +71,12 @@ fun InicioScreen(
                 Column {
                     Text(
                         text = "PROFEDEX",
-                        color = colorScheme.primary,
+                        color = colorScheme.background,
                         style = typography.titleLarge.copy(fontSize = 22.sp, letterSpacing = 1.sp)
                     )
                     Text(
                         text = "Facultad de Ingeniería UNAM",
-                        color = colorScheme.primary.copy(alpha = 0.8f),
+                        color = colorScheme.background.copy(alpha = 0.8f),
                         style = typography.bodyLarge.copy(fontSize = 11.sp)
                     )
                 }

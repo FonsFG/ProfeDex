@@ -177,7 +177,7 @@ fun ProfesorProfileScreen(
                     Text(
                         text = "MATERIAS QUE IMPARTE:",
                         style = typography.titleLarge.copy(fontSize = 12.sp),
-                        color = colorScheme.onSurfaceVariant,
+                        color = colorScheme.outline,
                         modifier = Modifier.padding(bottom = 6.dp)
                     )
 
@@ -197,7 +197,7 @@ fun ProfesorProfileScreen(
                                 modifier = Modifier.padding(horizontal = 4.dp),
                                 colors = AssistChipDefaults.assistChipColors(
                                     containerColor = colorScheme.primary.copy(alpha = 0.1f),
-                                    labelColor = colorScheme.primary
+                                    labelColor = colorScheme.outline
                                 )
                             )
                         }
