@@ -57,7 +57,7 @@ fun PerfilUsuarioScreen(
         ) {
             Text(
                 text = "MI PERFIL",
-                color = colorScheme.primary,
+                color = colorScheme.background,
                 style = typography.titleLarge.copy(fontSize = 24.sp)
             )
         }
@@ -135,7 +135,7 @@ fun PerfilUsuarioScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (modoEdicion) colorScheme.tertiary else colorScheme.error,
-                        contentColor = if (modoEdicion) colorScheme.onTertiary else colorScheme.primary
+                        contentColor = if (modoEdicion) colorScheme.onTertiary else colorScheme.background
                     )
                 ) {
                     Text(
