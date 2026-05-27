@@ -26,7 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.ProfesorFB
-import com.example.profedex.ui.theme.theme.backgroundLight
+import com.example.profedex.ui.components.ProfeDexHeader
 import com.example.profedex.viewmodel.InicioViewModel
 
 @Composable
@@ -45,173 +45,144 @@ fun InicioScreen(
     val typography = MaterialTheme.typography
 
     Box(modifier = Modifier.fillMaxSize()) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorScheme.background)
-            .verticalScroll(rememberScrollState())
-    ) {
-        // ── HEADER ────────────────────────
-        Surface(
-            color = colorScheme.error,
-            shadowElevation = 4.dp
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorScheme.background)
+                .verticalScroll(rememberScrollState())
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            // ── HEADER REUTILIZABLE ────────────────────────
+            ProfeDexHeader()
+
+            // ── IMAGEN BANNER ────────────────────────────────────────
+            Image(
+                painter = painterResource(id = R.drawable.banner_fi),
+                contentDescription = "Banner FI",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .height(180.dp)
+            )
+
+            // ── BIENVENIDA ───────────────────────────────────────────
+            Surface(
+                color = colorScheme.secondaryContainer,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_profedex),
-                    contentDescription = "Logo ProfeDex",
-                    modifier = Modifier.size(48.dp)
+                Text(
+                    text = "¡BIENVENIDO A PROFEDEX!",
+                    color = colorScheme.onSecondaryContainer,
+                    style = typography.titleLarge.copy(fontSize = 16.sp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 12.dp)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "PROFEDEX",
-                        color = colorScheme.background,
-                        style = typography.titleLarge.copy(fontSize = 22.sp, letterSpacing = 1.sp)
+            }
+
+            // ── BARRA DE BÚSQUEDA ────────────────────────────────────
+            OutlinedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable { onSearchClick() },
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.busqueda),
+                        contentDescription = "Buscar",
+                        tint = colorScheme.error,
+                        modifier = Modifier.size(24.dp)
                     )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Facultad de Ingeniería UNAM",
-                        color = colorScheme.background.copy(alpha = 0.8f),
-                        style = typography.bodyLarge.copy(fontSize = 11.sp)
+                        text = "Buscar profesor o materia...",
+                        color = colorScheme.onSurfaceVariant,
+                        style = typography.bodyLarge.copy(fontSize = 14.sp),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
-        }
 
-        // ── IMAGEN BANNER ────────────────────────────────────────
-        Image(
-            painter = painterResource(id = R.drawable.banner_fi),
-            contentDescription = "Banner FI",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-        )
-
-        // ── BIENVENIDA ───────────────────────────────────────────
-        Surface(
-            color = colorScheme.secondaryContainer,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "¡BIENVENIDO A PROFEDEX!",
-                color = colorScheme.onSecondaryContainer,
-                style = typography.titleLarge.copy(fontSize = 16.sp),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(vertical = 12.dp)
-            )
-        }
-
-        // ── BARRA DE BÚSQUEDA ────────────────────────────────────
-        OutlinedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .clickable { onSearchClick() },
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
-        ) {
+            // ── TARJETAS DE CATEGORÍA ──────────────────
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.busqueda),
-                    contentDescription = "Buscar",
-                    tint = colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                TarjetaCategoria(
+                    modifier = Modifier.weight(1f),
+                    icono = R.drawable.estrella_recomendado,
+                    titulo = "PROFES MÁS RECOMENDADOS",
+                    descripcion = "Los mejores evaluados.",
+                    valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
+                    etiqueta = "Promedio",
+                    colorEtiqueta = colorScheme.tertiary,
+                    seleccionada = categoriaSeleccionada == "recomendados",
+                    onClick = { 
+                        categoriaSeleccionada = if (categoriaSeleccionada == "recomendados") null else "recomendados"
+                    }
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Buscar profesor o materia...",
-                    color = colorScheme.onSurfaceVariant,
-                    style = typography.bodyLarge.copy(fontSize = 14.sp),
-                    modifier = Modifier.weight(1f)
+
+                TarjetaCategoria(
+                    modifier = Modifier.weight(1f),
+                    icono = R.drawable.logo_norecomendado,
+                    titulo = "PROFES PESADOS",
+                    descripcion = "Alto nivel de exigencia.",
+                    valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
+                    etiqueta = "Dificultad",
+                    colorEtiqueta = colorScheme.error,
+                    seleccionada = categoriaSeleccionada == "pesados",
+                    onClick = { 
+                        categoriaSeleccionada = if (categoriaSeleccionada == "pesados") null else "pesados"
+                    }
                 )
             }
-        }
 
-        // ── TARJETAS DE CATEGORÍA ──────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            TarjetaCategoria(
-                modifier = Modifier.weight(1f),
-                icono = R.drawable.estrella_recomendado,
-                titulo = "PROFES MÁS RECOMENDADOS",
-                descripcion = "Los mejores evaluados.",
-                valoracion = profesoresRecomendados.firstOrNull()?.averageRating ?: 0.0,
-                etiqueta = "Promedio",
-                colorEtiqueta = colorScheme.tertiary,
-                seleccionada = categoriaSeleccionada == "recomendados",
-                onClick = { 
-                    categoriaSeleccionada = if (categoriaSeleccionada == "recomendados") null else "recomendados"
+            Spacer(modifier = Modifier.height(24.dp))
+
+            when (categoriaSeleccionada) {
+                "recomendados" -> {
+                    SectionHeader("LISTADO: RECOMENDADOS", colorScheme.tertiary)
+                    if (profesoresRecomendados.isEmpty()) {
+                        Text("No hay profesores recomendados", modifier = Modifier.padding(16.dp), color = colorScheme.onSurface)
+                    } else {
+                        profesoresRecomendados.forEach { profesor ->
+                            ProfesorCardInicio(
+                                profesor = profesor,
+                                colorEtiqueta = colorScheme.tertiary,
+                                etiqueta = "Promedio",
+                                valor = profesor.averageRating,
+                                onClick = { onProfesorClick(profesor) }
+                            )
+                        }
+                    }
                 }
-            )
-
-            TarjetaCategoria(
-                modifier = Modifier.weight(1f),
-                icono = R.drawable.logo_norecomendado,
-                titulo = "PROFES PESADOS",
-                descripcion = "Alto nivel de exigencia.",
-                valoracion = profesoresPesados.firstOrNull()?.difficulty ?: 0.0,
-                etiqueta = "Dificultad",
-                colorEtiqueta = colorScheme.error,
-                seleccionada = categoriaSeleccionada == "pesados",
-                onClick = { 
-                    categoriaSeleccionada = if (categoriaSeleccionada == "pesados") null else "pesados"
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        when (categoriaSeleccionada) {
-            "recomendados" -> {
-                SectionHeader("LISTADO: RECOMENDADOS", colorScheme.tertiary)
-                if (profesoresRecomendados.isEmpty()) {
-                    Text("No hay profesores recomendados", modifier = Modifier.padding(16.dp), color = colorScheme.onSurface)
-                } else {
-                    profesoresRecomendados.forEach { profesor ->
-                        ProfesorCardInicio(
-                            profesor = profesor,
-                            colorEtiqueta = colorScheme.tertiary,
-                            etiqueta = "Promedio",
-                            valor = profesor.averageRating,
-                            onClick = { onProfesorClick(profesor) }
-                        )
+                "pesados" -> {
+                    SectionHeader("LISTADO: PESADOS", colorScheme.error)
+                    if (profesoresPesados.isEmpty()) {
+                        Text("No hay profesores pesados", modifier = Modifier.padding(16.dp), color = colorScheme.onSurface)
+                    } else {
+                        profesoresPesados.forEach { profesor ->
+                            ProfesorCardInicio(
+                                profesor = profesor,
+                                colorEtiqueta = colorScheme.error,
+                                etiqueta = "Dificultad",
+                                valor = profesor.difficulty,
+                                onClick = { onProfesorClick(profesor) }
+                            )
+                        }
                     }
                 }
             }
-            "pesados" -> {
-                SectionHeader("LISTADO: PESADOS", colorScheme.error)
-                if (profesoresPesados.isEmpty()) {
-                    Text("No hay profesores pesados", modifier = Modifier.padding(16.dp), color = colorScheme.onSurface)
-                } else {
-                    profesoresPesados.forEach { profesor ->
-                        ProfesorCardInicio(
-                            profesor = profesor,
-                            colorEtiqueta = colorScheme.error,
-                            etiqueta = "Dificultad",
-                            valor = profesor.difficulty,
-                            onClick = { onProfesorClick(profesor) }
-                        )
-                    }
-                }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
-    }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
         // ── FAB CHATBOT IA ──────────────────────────────
         FloatingActionButton(

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -29,6 +28,7 @@ import coil.compose.AsyncImage
 import com.example.profedex.R
 import com.example.profedex.data.model.BuscarUiState
 import com.example.profedex.data.model.ProfesorFB
+import com.example.profedex.ui.components.ProfeDexHeader
 import com.example.profedex.viewmodel.BuscarProfesoresViewModel
 
 @Composable
@@ -40,16 +40,20 @@ fun BuscarProfesoresScreen(
     val uiState by viewModel.uiState.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
 
-    Scaffold(
-        containerColor = colorScheme.background
-    ) { paddingValues ->
+    // Usamos Box en lugar de Scaffold para que el color rojo del Header suba hasta el tope real de la pantalla
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorScheme.background)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
-            LogoHeader()
-            BarraTitulo(onVolverClick = onVolverClick)
+            // El Header ahora maneja el padding de la barra de estado internamente con statusBarsPadding()
+            ProfeDexHeader(
+                title = "BUSCAR PROFESORES",
+                onBackClick = onVolverClick
+            )
 
             when (val estado = uiState) {
                 is BuscarUiState.Cargando -> PantallaCargando()
@@ -62,53 +66,6 @@ fun BuscarProfesoresScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun LogoHeader() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo_profedex),
-            contentDescription = "Logo ProfeDex",
-            modifier = Modifier.size(60.dp)
-        )
-    }
-}
-
-@Composable
-private fun BarraTitulo(onVolverClick: () -> Unit) {
-    val colorScheme = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colorScheme.error) // Usando color de error como el rojo principal del tema
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onVolverClick,
-            modifier = Modifier.size(32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Volver",
-                tint = colorScheme.onError
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Buscar profesores",
-            color = colorScheme.onError,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 
